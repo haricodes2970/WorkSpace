@@ -11,25 +11,30 @@ datasource db {
 
 // ---------------------------------------------------------------------------
 // Users
-// Mirrors Supabase Auth — created via trigger on auth.users insert
 // ---------------------------------------------------------------------------
 model User {
-  id        String   @id @default(uuid()) @db.Uuid
-  authId    String   @unique @map("auth_id") @db.Uuid
-  email     String   @unique
+  id        String    @id @default(uuid()) @db.Uuid
+  authId    String    @unique @map("auth_id") @db.Uuid
+  email     String    @unique
   name      String?
-  avatarUrl String?  @map("avatar_url")
-  timezone  String   @default("UTC")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  avatarUrl String?   @map("avatar_url")
+  timezone  String    @default("UTC")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  ideas      Idea[]
-  projects   Project[]
-  tasks      Task[]
-  milestones Milestone[]
-  notes      Note[]
-  links      Link[]
+  ideas         Idea[]
+  projects      Project[]
+  tasks         Task[]
+  milestones    Milestone[]
+  notes         Note[]
+  links         Link[]
+  weeklyReviews WeeklyReview[]
+  decisions     Decision[]
+  timelineEvents TimelineEvent[]
+  scopeItems    ScopeItem[]
+  risks         ProjectRisk[]
+  blockers      Blocker[]
 
   @@index([authId])
   @@index([email])
@@ -38,29 +43,36 @@ model User {
 }
 
 // ---------------------------------------------------------------------------
-// Ideas — incubation stage before becoming projects
+// Ideas — incubation + maturation stage
 // ---------------------------------------------------------------------------
 model Idea {
-  id          String     @id @default(uuid()) @db.Uuid
-  userId      String     @map("user_id") @db.Uuid
-  title       String
-  description String?
-  status      IdeaStatus @default(RAW)
-  tags        String[]   @default([])
-  pinned      Boolean    @default(false)
-  convertedAt DateTime?  @map("converted_at")
-  projectId   String?    @unique @map("project_id") @db.Uuid
-  createdAt   DateTime   @default(now()) @map("created_at")
-  updatedAt   DateTime   @updatedAt @map("updated_at")
-  deletedAt   DateTime?  @map("deleted_at")
+  id               String          @id @default(uuid()) @db.Uuid
+  userId           String          @map("user_id") @db.Uuid
+  title            String
+  description      String?
+  status           IdeaStatus      @default(RAW)
+  readinessStatus  ReadinessStatus @default(CAPTURED) @map("readiness_status")
+  readinessScore   Float           @default(0) @map("readiness_score")
+  tags             String[]        @default([])
+  pinned           Boolean         @default(false)
+  convertedAt      DateTime?       @map("converted_at")
+  projectId        String?         @unique @map("project_id") @db.Uuid
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+  deletedAt        DateTime?       @map("deleted_at")
 
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  project Project? @relation(fields: [projectId], references: [id])
-  notes   Note[]
-  links   Link[]
+  user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project               Project?           @relation(fields: [projectId], references: [id])
+  notes                 Note[]
+  links                 Link[]
+  blocks                IdeaBlock[]
+  outgoingRelationships IdeaRelationship[] @relation("SourceRelationships")
+  incomingRelationships IdeaRelationship[] @relation("TargetRelationships")
 
   @@index([userId])
   @@index([status])
+  @@index([readinessStatus])
+  @@index([readinessScore])
   @@index([deletedAt])
   @@map("ideas")
 }
@@ -73,8 +85,82 @@ enum IdeaStatus {
   ARCHIVED
 }
 
+enum ReadinessStatus {
+  CAPTURED
+  EXPLORING
+  VALIDATING
+  PLANNING
+  READY
+  CONVERTED
+  ARCHIVED
+}
+
 // ---------------------------------------------------------------------------
-// Projects — executable work converted from ideas or created directly
+// IdeaBlock — structured thinking blocks (one per type per idea)
+// ---------------------------------------------------------------------------
+model IdeaBlock {
+  id        String    @id @default(uuid()) @db.Uuid
+  ideaId    String    @map("idea_id") @db.Uuid
+  type      BlockType
+  content   String    @default("")
+  completed Boolean   @default(false)
+  position  Int       @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  idea Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+
+  @@unique([ideaId, type])
+  @@index([ideaId])
+  @@index([deletedAt])
+  @@map("idea_blocks")
+}
+
+enum BlockType {
+  PROBLEM
+  USER_PAIN
+  EXISTING_ALTERNATIVES
+  MARKET_GAP
+  CONSTRAINTS
+  RISKS
+  ASSUMPTIONS
+  MVP_SCOPE
+  SUCCESS_METRICS
+  EXECUTION_PLAN
+  MONETIZATION
+  VALIDATION_STRATEGY
+}
+
+// ---------------------------------------------------------------------------
+// IdeaRelationship — lightweight links between ideas
+// ---------------------------------------------------------------------------
+model IdeaRelationship {
+  id        String           @id @default(uuid()) @db.Uuid
+  sourceId  String           @map("source_id") @db.Uuid
+  targetId  String           @map("target_id") @db.Uuid
+  type      RelationshipType
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  source Idea @relation("SourceRelationships", fields: [sourceId], references: [id], onDelete: Cascade)
+  target Idea @relation("TargetRelationships", fields: [targetId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceId, targetId])
+  @@index([sourceId])
+  @@index([targetId])
+  @@map("idea_relationships")
+}
+
+enum RelationshipType {
+  RELATED
+  DEPENDS_ON
+  BLOCKS
+  DUPLICATE_OF
+  SPAWNED_FROM
+}
+
+// ---------------------------------------------------------------------------
+// Projects
 // ---------------------------------------------------------------------------
 model Project {
   id          String        @id @default(uuid()) @db.Uuid
@@ -97,9 +183,21 @@ model Project {
   milestones Milestone[]
   notes      Note[]
   links      Link[]
+  weeklyReviews WeeklyReview[]
+  decisions     Decision[]
+  timelineEvents TimelineEvent[]
+  scopeItems    ScopeItem[]
+  risks         ProjectRisk[]
+  blockers      Blocker[]
+
+  // Phase 4: execution intelligence fields
+  executionState   ExecutionState @default(PLANNING) @map("execution_state")
+  momentumScore    Float          @default(0)        @map("momentum_score")
+  scopeHealthScore Float          @default(100)      @map("scope_health_score")
 
   @@index([userId])
   @@index([status])
+  @@index([executionState])
   @@index([deletedAt])
   @@map("projects")
 }
@@ -112,13 +210,191 @@ enum ProjectStatus {
   ARCHIVED
 }
 
+enum ExecutionState {
+  PLANNING
+  BUILDING
+  VALIDATING
+  STABILIZING
+  SHIPPING
+  MAINTAINING
+  PAUSED
+  ARCHIVED
+}
+
+// ---------------------------------------------------------------------------
+// WeeklyReview — structured weekly reflection
+// ---------------------------------------------------------------------------
+model WeeklyReview {
+  id                String   @id @default(uuid()) @db.Uuid
+  projectId         String   @map("project_id") @db.Uuid
+  userId            String   @map("user_id") @db.Uuid
+  weekStarting      DateTime @map("week_starting") @db.Date
+  movedForward      String   @default("") @map("moved_forward")
+  stalled           String   @default("")
+  changed           String   @default("")
+  assumptionsFailed String   @default("") @map("assumptions_failed")
+  shouldCut         String   @default("") @map("should_cut")
+  worthContinuing   Boolean  @default(true) @map("worth_continuing")
+  overallRating     Int      @default(3) @map("overall_rating")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, weekStarting])
+  @@index([projectId])
+  @@map("weekly_reviews")
+}
+
+// ---------------------------------------------------------------------------
+// Decision — project decision log
+// ---------------------------------------------------------------------------
+model Decision {
+  id           String    @id @default(uuid()) @db.Uuid
+  projectId    String    @map("project_id") @db.Uuid
+  userId       String    @map("user_id") @db.Uuid
+  title        String
+  context      String    @default("")
+  decision     String
+  alternatives String    @default("")
+  tradeoffs    String    @default("")
+  reversed     Boolean   @default(false)
+  reversalNote String?   @map("reversal_note")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([deletedAt])
+  @@map("decisions")
+}
+
+// ---------------------------------------------------------------------------
+// TimelineEvent — unified execution history
+// ---------------------------------------------------------------------------
+model TimelineEvent {
+  id          String            @id @default(uuid()) @db.Uuid
+  projectId   String            @map("project_id") @db.Uuid
+  userId      String            @map("user_id") @db.Uuid
+  type        TimelineEventType
+  title       String
+  description String?
+  metadata    Json?
+  occurredAt  DateTime          @default(now()) @map("occurred_at")
+  createdAt   DateTime          @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, occurredAt(sort: Desc)])
+  @@map("timeline_events")
+}
+
+enum TimelineEventType {
+  TASK_COMPLETED
+  MILESTONE_REACHED
+  SCOPE_CHANGED
+  DECISION_MADE
+  REVIEW_COMPLETED
+  STATUS_CHANGED
+  BLOCKED
+  UNBLOCKED
+  NOTE_ADDED
+  SHIPPED
+}
+
+// ---------------------------------------------------------------------------
+// ScopeItem — deferred / bucketed feature items
+// ---------------------------------------------------------------------------
+model ScopeItem {
+  id        String      @id @default(uuid()) @db.Uuid
+  projectId String      @map("project_id") @db.Uuid
+  userId    String      @map("user_id") @db.Uuid
+  title     String
+  notes     String?
+  bucket    ScopeBucket @default(MVP)
+  position  Int         @default(0)
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+  deletedAt DateTime?   @map("deleted_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([deletedAt])
+  @@map("scope_items")
+}
+
+enum ScopeBucket {
+  MVP
+  V1
+  LATER
+  EXPERIMENTAL
+}
+
+// ---------------------------------------------------------------------------
+// ProjectRisk — tracked project risks
+// ---------------------------------------------------------------------------
+model ProjectRisk {
+  id          String       @id @default(uuid()) @db.Uuid
+  projectId   String       @map("project_id") @db.Uuid
+  userId      String       @map("user_id") @db.Uuid
+  title       String
+  description String?
+  severity    RiskSeverity @default(MEDIUM)
+  mitigated   Boolean      @default(false)
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  deletedAt   DateTime?    @map("deleted_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([deletedAt])
+  @@map("project_risks")
+}
+
+enum RiskSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// ---------------------------------------------------------------------------
+// Blocker — execution blockers
+// ---------------------------------------------------------------------------
+model Blocker {
+  id          String    @id @default(uuid()) @db.Uuid
+  projectId   String    @map("project_id") @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  title       String
+  description String?
+  resolved    Boolean   @default(false)
+  resolvedAt  DateTime? @map("resolved_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("blockers")
+}
+
 enum Visibility {
   PRIVATE
   PUBLIC
 }
 
 // ---------------------------------------------------------------------------
-// Tasks — executable work items within a project
+// Tasks
 // ---------------------------------------------------------------------------
 model Task {
   id          String     @id @default(uuid()) @db.Uuid
@@ -168,7 +444,7 @@ enum Priority {
 }
 
 // ---------------------------------------------------------------------------
-// Milestones — grouped deliverables within a project
+// Milestones
 // ---------------------------------------------------------------------------
 model Milestone {
   id          String          @id @default(uuid()) @db.Uuid
@@ -202,20 +478,20 @@ enum MilestoneStatus {
 }
 
 // ---------------------------------------------------------------------------
-// Notes — free-form rich text attached to any entity
+// Notes
 // ---------------------------------------------------------------------------
 model Note {
-  id         String    @id @default(uuid()) @db.Uuid
-  userId     String    @map("user_id") @db.Uuid
-  ideaId     String?   @map("idea_id") @db.Uuid
-  projectId  String?   @map("project_id") @db.Uuid
-  taskId     String?   @map("task_id") @db.Uuid
-  title      String?
-  content    String
-  pinned     Boolean   @default(false)
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime  @updatedAt @map("updated_at")
-  deletedAt  DateTime? @map("deleted_at")
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  ideaId    String?   @map("idea_id") @db.Uuid
+  projectId String?   @map("project_id") @db.Uuid
+  taskId    String?   @map("task_id") @db.Uuid
+  title     String?
+  content   String
+  pinned    Boolean   @default(false)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   idea    Idea?    @relation(fields: [ideaId], references: [id])
@@ -228,7 +504,7 @@ model Note {
 }
 
 // ---------------------------------------------------------------------------
-// Links — external references attached to any entity
+// Links
 // ---------------------------------------------------------------------------
 model Link {
   id        String    @id @default(uuid()) @db.Uuid
