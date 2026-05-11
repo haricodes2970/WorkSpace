@@ -1,0 +1,251 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+// ---------------------------------------------------------------------------
+// Users
+// Mirrors Supabase Auth — created via trigger on auth.users insert
+// ---------------------------------------------------------------------------
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  authId    String   @unique @map("auth_id") @db.Uuid
+  email     String   @unique
+  name      String?
+  avatarUrl String?  @map("avatar_url")
+  timezone  String   @default("UTC")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  ideas      Idea[]
+  projects   Project[]
+  tasks      Task[]
+  milestones Milestone[]
+  notes      Note[]
+  links      Link[]
+
+  @@index([authId])
+  @@index([email])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// Ideas — incubation stage before becoming projects
+// ---------------------------------------------------------------------------
+model Idea {
+  id          String     @id @default(uuid()) @db.Uuid
+  userId      String     @map("user_id") @db.Uuid
+  title       String
+  description String?
+  status      IdeaStatus @default(RAW)
+  tags        String[]   @default([])
+  pinned      Boolean    @default(false)
+  convertedAt DateTime?  @map("converted_at")
+  projectId   String?    @unique @map("project_id") @db.Uuid
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  deletedAt   DateTime?  @map("deleted_at")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project? @relation(fields: [projectId], references: [id])
+  notes   Note[]
+  links   Link[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("ideas")
+}
+
+enum IdeaStatus {
+  RAW
+  REFINING
+  READY
+  CONVERTED
+  ARCHIVED
+}
+
+// ---------------------------------------------------------------------------
+// Projects — executable work converted from ideas or created directly
+// ---------------------------------------------------------------------------
+model Project {
+  id          String        @id @default(uuid()) @db.Uuid
+  userId      String        @map("user_id") @db.Uuid
+  title       String
+  description String?
+  status      ProjectStatus @default(PLANNING)
+  visibility  Visibility    @default(PRIVATE)
+  startDate   DateTime?     @map("start_date")
+  targetDate  DateTime?     @map("target_date")
+  shippedAt   DateTime?     @map("shipped_at")
+  tags        String[]      @default([])
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  deletedAt   DateTime?     @map("deleted_at")
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  idea       Idea?
+  tasks      Task[]
+  milestones Milestone[]
+  notes      Note[]
+  links      Link[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("projects")
+}
+
+enum ProjectStatus {
+  PLANNING
+  ACTIVE
+  PAUSED
+  SHIPPED
+  ARCHIVED
+}
+
+enum Visibility {
+  PRIVATE
+  PUBLIC
+}
+
+// ---------------------------------------------------------------------------
+// Tasks — executable work items within a project
+// ---------------------------------------------------------------------------
+model Task {
+  id          String     @id @default(uuid()) @db.Uuid
+  userId      String     @map("user_id") @db.Uuid
+  projectId   String?    @map("project_id") @db.Uuid
+  milestoneId String?    @map("milestone_id") @db.Uuid
+  parentId    String?    @map("parent_id") @db.Uuid
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  priority    Priority   @default(MEDIUM)
+  dueDate     DateTime?  @map("due_date")
+  completedAt DateTime?  @map("completed_at")
+  position    Int        @default(0)
+  tags        String[]   @default([])
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  deletedAt   DateTime?  @map("deleted_at")
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project   Project?   @relation(fields: [projectId], references: [id])
+  milestone Milestone? @relation(fields: [milestoneId], references: [id])
+  parent    Task?      @relation("SubTasks", fields: [parentId], references: [id])
+  subtasks  Task[]     @relation("SubTasks")
+  notes     Note[]
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("tasks")
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  BLOCKED
+  DONE
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+// ---------------------------------------------------------------------------
+// Milestones — grouped deliverables within a project
+// ---------------------------------------------------------------------------
+model Milestone {
+  id          String          @id @default(uuid()) @db.Uuid
+  userId      String          @map("user_id") @db.Uuid
+  projectId   String          @map("project_id") @db.Uuid
+  title       String
+  description String?
+  status      MilestoneStatus @default(UPCOMING)
+  targetDate  DateTime?       @map("target_date")
+  completedAt DateTime?       @map("completed_at")
+  position    Int             @default(0)
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+  deletedAt   DateTime?       @map("deleted_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks   Task[]
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([deletedAt])
+  @@map("milestones")
+}
+
+enum MilestoneStatus {
+  UPCOMING
+  IN_PROGRESS
+  COMPLETED
+  MISSED
+}
+
+// ---------------------------------------------------------------------------
+// Notes — free-form rich text attached to any entity
+// ---------------------------------------------------------------------------
+model Note {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  ideaId     String?   @map("idea_id") @db.Uuid
+  projectId  String?   @map("project_id") @db.Uuid
+  taskId     String?   @map("task_id") @db.Uuid
+  title      String?
+  content    String
+  pinned     Boolean   @default(false)
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  idea    Idea?    @relation(fields: [ideaId], references: [id])
+  project Project? @relation(fields: [projectId], references: [id])
+  task    Task?    @relation(fields: [taskId], references: [id])
+
+  @@index([userId])
+  @@index([deletedAt])
+  @@map("notes")
+}
+
+// ---------------------------------------------------------------------------
+// Links — external references attached to any entity
+// ---------------------------------------------------------------------------
+model Link {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  ideaId    String?   @map("idea_id") @db.Uuid
+  projectId String?   @map("project_id") @db.Uuid
+  label     String
+  url       String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  idea    Idea?    @relation(fields: [ideaId], references: [id])
+  project Project? @relation(fields: [projectId], references: [id])
+
+  @@index([userId])
+  @@index([deletedAt])
+  @@map("links")
+}
