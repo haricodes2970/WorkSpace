@@ -6,50 +6,63 @@ import {
   LayoutDashboard,
   Lightbulb,
   FolderKanban,
-  CheckSquare,
-  LogOut,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { signOutAction } from "@/features/auth/actions";
-import { Button } from "@/components/ui/button";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/ideas", label: "Ideas", icon: Lightbulb },
-  { href: "/projects", label: "Projects", icon: FolderKanban },
-  { href: "/tasks", label: "Tasks", icon: CheckSquare },
+  { href: "/ideas",     label: "Ideas",     icon: Lightbulb },
+  { href: "/projects",  label: "Projects",  icon: FolderKanban },
+  { href: "/tasks",     label: "Tasks",     icon: Zap },
 ] as const;
 
-export function Sidebar() {
+interface SidebarProps {
+  /** Rendered in the footer slot — pass a sign-out form from the server layout */
+  signOutSlot: React.ReactNode;
+}
+
+export function Sidebar({ signOutSlot }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-full w-56 flex-col border-r border-[--color-border] bg-[--color-surface]">
-      {/* Logo */}
-      <div className="flex h-14 items-center px-4 border-b border-[--color-border]">
-        <span className="text-base font-semibold text-[--color-text-primary] tracking-tight">
+    <aside className="flex h-full w-52 flex-col border-r border-[--color-border] bg-[--color-panel]">
+      {/* Wordmark */}
+      <div className="flex h-12 items-center gap-2 px-4 border-b border-[--color-border-subtle]">
+        <div className="h-5 w-5 rounded bg-[--color-primary] flex items-center justify-center">
+          <span className="text-[10px] font-bold text-white">W</span>
+        </div>
+        <span className="text-[13px] font-semibold text-[--color-text-primary] tracking-tight">
           WorkSpace
         </span>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto p-2" aria-label="Main navigation">
+      {/* Nav */}
+      <nav className="flex-1 overflow-y-auto p-1.5" aria-label="Main navigation">
         <ul className="flex flex-col gap-0.5">
           {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-            const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
+            const active =
+              pathname === href ||
+              (href !== "/dashboard" && pathname.startsWith(href));
             return (
               <li key={href}>
                 <Link
                   href={href}
                   className={cn(
-                    "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors",
+                    "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors duration-[--duration-fast]",
                     active
-                      ? "bg-[--color-accent-subtle] text-[--color-accent]"
-                      : "text-[--color-text-secondary] hover:bg-[--color-surface-2] hover:text-[--color-text-primary]"
+                      ? "bg-[--color-primary-subtle] text-[--color-text-primary] font-medium"
+                      : "text-[--color-text-secondary] hover:bg-[--color-card] hover:text-[--color-text-primary]"
                   )}
                   aria-current={active ? "page" : undefined}
                 >
-                  <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                  <Icon
+                    className={cn(
+                      "h-3.5 w-3.5 shrink-0",
+                      active ? "text-[--color-primary]" : "text-[--color-text-muted]"
+                    )}
+                    aria-hidden
+                  />
                   {label}
                 </Link>
               </li>
@@ -58,18 +71,9 @@ export function Sidebar() {
         </ul>
       </nav>
 
-      {/* Sign out */}
-      <div className="p-2 border-t border-[--color-border]">
-        <form action={signOutAction}>
-          <Button
-            type="submit"
-            variant="ghost"
-            className="w-full justify-start gap-2.5 text-[--color-text-muted] hover:text-[--color-danger]"
-          >
-            <LogOut className="h-4 w-4" aria-hidden />
-            Sign out
-          </Button>
-        </form>
+      {/* Footer slot — sign-out form injected by server layout */}
+      <div className="p-1.5 border-t border-[--color-border-subtle]">
+        {signOutSlot}
       </div>
     </aside>
   );
