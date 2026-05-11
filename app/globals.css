@@ -1,34 +1,63 @@
 @import "tailwindcss";
 
+/* ─── Design Tokens ──────────────────────────────────────────────────────── */
 @theme {
-  --color-background: #0a0a0a;
-  --color-surface: #111111;
-  --color-surface-2: #1a1a1a;
-  --color-surface-3: #222222;
-  --color-border: #2a2a2a;
-  --color-border-subtle: #1f1f1f;
+  /* Surfaces */
+  --color-bg:        #0B0F14;
+  --color-panel:     #111827;
+  --color-card:      #161F2B;
+  --color-card-hover:#1A2536;
+  --color-overlay:   rgba(11, 15, 20, 0.85);
 
-  --color-text-primary: #f5f5f5;
-  --color-text-secondary: #a0a0a0;
-  --color-text-muted: #5a5a5a;
+  /* Borders */
+  --color-border:         #263041;
+  --color-border-subtle:  #1C2535;
+  --color-border-strong:  #374151;
 
-  --color-accent: #6366f1;
-  --color-accent-hover: #4f52e0;
-  --color-accent-subtle: #1e1f3a;
+  /* Brand */
+  --color-primary:        #7C3AED;
+  --color-primary-hover:  #6D28D9;
+  --color-primary-subtle: #1E1433;
+  --color-accent:         #06B6D4;
+  --color-accent-hover:   #0891B2;
+  --color-accent-subtle:  #0B2230;
 
-  --color-success: #22c55e;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
+  /* Text */
+  --color-text-primary:   #F8FAFC;
+  --color-text-secondary: #94A3B8;
+  --color-text-muted:     #4B5563;
+  --color-text-disabled:  #374151;
 
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  /* Semantic */
+  --color-success:        #10B981;
+  --color-success-subtle: #0B2420;
+  --color-warning:        #F59E0B;
+  --color-warning-subtle: #1F1700;
+  --color-danger:         #EF4444;
+  --color-danger-subtle:  #2A0F0F;
 
-  --font-sans: "Geist", "Inter", system-ui, -apple-system, sans-serif;
-  --font-mono: "Geist Mono", "JetBrains Mono", monospace;
+  /* Typography */
+  --font-sans: "Inter", "Geist", system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", "Fira Code", monospace;
+
+  /* Spacing rhythm */
+  --spacing-section: 1.5rem;
+
+  /* Radius */
+  --radius-sm:  4px;
+  --radius-md:  6px;
+  --radius-lg:  10px;
+  --radius-xl:  14px;
+  --radius-full: 9999px;
+
+  /* Animation */
+  --duration-fast:   150ms;
+  --duration-base:   200ms;
+  --duration-slow:   300ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* ─── Reset & Base ───────────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
   border-color: var(--color-border);
@@ -36,41 +65,97 @@
 
 html {
   color-scheme: dark;
+  font-size: 14px;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background-color: var(--color-background);
+  background-color: var(--color-bg);
   color: var(--color-text-primary);
   font-family: var(--font-sans);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
 }
 
 ::selection {
-  background-color: var(--color-accent-subtle);
+  background-color: var(--color-primary-subtle);
   color: var(--color-text-primary);
 }
 
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
+/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 5px; height: 5px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: var(--color-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-border-strong); }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
-}
-
-/* Focus visible */
+/* ─── Focus ──────────────────────────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
+
+/* ─── Prose / Editor Typography ─────────────────────────────────────────── */
+.prose {
+  color: var(--color-text-primary);
+  max-width: none;
+  line-height: 1.7;
+}
+
+.prose h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-text-primary); }
+.prose h2 { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--color-text-primary); }
+.prose h3 { font-size: 1.05rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--color-text-secondary); }
+.prose p  { margin-bottom: 0.75rem; color: var(--color-text-secondary); }
+.prose ul, .prose ol { margin-bottom: 0.75rem; padding-left: 1.25rem; }
+.prose li { margin-bottom: 0.25rem; color: var(--color-text-secondary); }
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  padding: 0.1em 0.35em;
+  border-radius: var(--radius-sm);
+  color: var(--color-accent);
+}
+.prose pre {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+.prose blockquote {
+  border-left: 2px solid var(--color-primary);
+  padding-left: 0.875rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+.prose strong { color: var(--color-text-primary); font-weight: 600; }
+
+/* ─── Animations ─────────────────────────────────────────────────────────── */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(4px); }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+.animate-fade-in    { animation: fade-in var(--duration-base) var(--ease-out); }
+.animate-slide-left { animation: slide-in-left var(--duration-base) var(--ease-out); }
+.animate-pulse-subtle { animation: pulse-subtle 2s ease-in-out infinite; }
