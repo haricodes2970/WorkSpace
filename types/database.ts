@@ -8,15 +8,25 @@ import type {
   Milestone,
   Note,
   Link,
+  WeeklyReview,
+  Decision,
+  TimelineEvent,
+  ScopeItem,
+  ProjectRisk,
+  Blocker,
   IdeaStatus,
   ReadinessStatus,
   BlockType,
   RelationshipType,
   ProjectStatus,
+  ExecutionState,
   TaskStatus,
   Priority,
   MilestoneStatus,
   Visibility,
+  ScopeBucket,
+  RiskSeverity,
+  TimelineEventType,
 } from "@prisma/client";
 
 export type {
@@ -29,15 +39,25 @@ export type {
   Milestone,
   Note,
   Link,
+  WeeklyReview,
+  Decision,
+  TimelineEvent,
+  ScopeItem,
+  ProjectRisk,
+  Blocker,
   IdeaStatus,
   ReadinessStatus,
   BlockType,
   RelationshipType,
   ProjectStatus,
+  ExecutionState,
   TaskStatus,
   Priority,
   MilestoneStatus,
   Visibility,
+  ScopeBucket,
+  RiskSeverity,
+  TimelineEventType,
 };
 
 // Rich relation for idea detail page
@@ -69,10 +89,15 @@ export type IdeaWithRelations = Idea & {
 
 export type ProjectWithRelations = Project & {
   tasks: Task[];
-  milestones: Milestone[];
+  milestones: (Milestone & { tasks: Task[] })[];
   notes: Note[];
   links: Link[];
-  idea: Idea | null;
+  idea: { id: string; title: string } | null;
+  weeklyReviews?: WeeklyReview[];
+  decisions?: Decision[];
+  timelineEvents?: TimelineEvent[];
+  scopeItems?: ScopeItem[];
+  blockers?: Blocker[];
 };
 
 export type TaskWithRelations = Task & {

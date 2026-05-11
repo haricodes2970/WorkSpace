@@ -12,13 +12,17 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import { motionPresets } from "@/lib/design-tokens";
-import type { ProjectStatus } from "@prisma/client";
+import { MomentumBadge } from "@/features/execution/momentum/momentum-badge";
+import type { ProjectStatus, ExecutionState } from "@prisma/client";
+import type { MomentumState } from "@/features/execution/momentum/calculator";
 
 export interface ProjectListItem {
   id: string;
   title: string;
   description: string | null;
   status: ProjectStatus;
+  executionState: ExecutionState;
+  momentumScore: number;
   tags: string[];
   taskTotal: number;
   taskDone: number;
@@ -118,11 +122,27 @@ export function ProjectsWorkspace({ projects }: ProjectsWorkspaceProps) {
   );
 }
 
+function executionStateToMomentumState(
+  executionState: ExecutionState,
+  momentumScore: number
+): MomentumState {
+  if (executionState === "PAUSED" || executionState === "ARCHIVED") return "ABANDONED";
+  if (momentumScore >= 75) return "ACCELERATING";
+  if (momentumScore >= 55) return "ACTIVE";
+  if (momentumScore >= 35) return "STABLE";
+  if (momentumScore >= 15) return "SLOWING";
+  return "STALLED";
+}
+
 function ProjectCard({ project }: { project: ProjectListItem }) {
   const { label, variant } = STATUS_CONFIG[project.status];
   const progress = project.taskTotal > 0
     ? Math.round((project.taskDone / project.taskTotal) * 100)
     : 0;
+  const momentumState = executionStateToMomentumState(
+    project.executionState,
+    project.momentumScore
+  );
 
   return (
     <Link href={`/projects/${project.id}`}>
@@ -138,6 +158,7 @@ function ProjectCard({ project }: { project: ProjectListItem }) {
           </h3>
           <div className="flex items-center gap-1.5 shrink-0">
             <Badge variant={variant} dot className="text-[10px]">{label}</Badge>
+            <MomentumBadge state={momentumState} score={project.momentumScore} size="sm" />
             <ArrowRight className="h-3.5 w-3.5 text-[--color-text-muted] opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
         </div>
