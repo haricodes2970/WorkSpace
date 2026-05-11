@@ -1,12 +1,17 @@
 import type {
   User,
   Idea,
+  IdeaBlock,
+  IdeaRelationship,
   Project,
   Task,
   Milestone,
   Note,
   Link,
   IdeaStatus,
+  ReadinessStatus,
+  BlockType,
+  RelationshipType,
   ProjectStatus,
   TaskStatus,
   Priority,
@@ -17,17 +22,29 @@ import type {
 export type {
   User,
   Idea,
+  IdeaBlock,
+  IdeaRelationship,
   Project,
   Task,
   Milestone,
   Note,
   Link,
   IdeaStatus,
+  ReadinessStatus,
+  BlockType,
+  RelationshipType,
   ProjectStatus,
   TaskStatus,
   Priority,
   MilestoneStatus,
   Visibility,
+};
+
+// Rich relation for idea detail page
+export type IdeaBlockWithIdea = IdeaBlock & { idea: Idea };
+export type IdeaRelationshipWithTitles = IdeaRelationship & {
+  source: { id: string; title: string };
+  target: { id: string; title: string };
 };
 
 // Omit soft-delete and audit fields from create/update payloads
