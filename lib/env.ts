@@ -24,6 +24,9 @@ const envSchema = z.object({
   CRON_SECRET:      z.string().optional(),
   EMBED_JOB_SECRET: z.string().optional(),
 
+  // Dev auth bypass — only honoured when NODE_ENV=development; production ignores this entirely
+  DEV_AUTH_BYPASS: z.string().optional(),
+
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 });
 

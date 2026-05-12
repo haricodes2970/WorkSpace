@@ -5,6 +5,7 @@ import { AppProviders } from "@/components/layout/app-providers";
 import { requireAuthUser } from "@/services/auth.service";
 import { signOutAction } from "@/features/auth/actions";
 import { SignOutButton } from "@/features/auth/components/sign-out-button";
+import { isDevAuthEnabled } from "@/lib/auth/dev-session";
 
 export default async function DashboardLayout({
   children,
@@ -28,7 +29,7 @@ export default async function DashboardLayout({
   return (
     <AppProviders>
       <div className="flex h-screen overflow-hidden bg-[--color-bg]">
-        <Sidebar signOutSlot={signOutSlot} />
+        <Sidebar signOutSlot={signOutSlot} showDevBadge={isDevAuthEnabled()} />
         <div className="flex flex-1 flex-col overflow-hidden min-w-0">
           <Topbar user={user.profile} />
           <main

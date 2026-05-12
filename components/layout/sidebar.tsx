@@ -22,10 +22,11 @@ const NAV_ITEMS = [
 ] as const;
 
 interface SidebarProps {
-  signOutSlot: React.ReactNode;
+  signOutSlot:   React.ReactNode;
+  showDevBadge?: boolean;
 }
 
-export function Sidebar({ signOutSlot }: SidebarProps) {
+export function Sidebar({ signOutSlot, showDevBadge = false }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -78,7 +79,12 @@ export function Sidebar({ signOutSlot }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="p-1.5 border-t border-[--color-border-subtle] shrink-0">
+      <div className="p-1.5 border-t border-[--color-border-subtle] shrink-0 flex flex-col gap-1">
+        {showDevBadge && (
+          <div className="px-2.5 py-1 rounded text-[10px] font-mono text-[--color-text-muted] bg-[--color-warning]/10 border border-[--color-warning]/20 tracking-wider select-none">
+            DEV AUTH
+          </div>
+        )}
         {signOutSlot}
       </div>
     </aside>

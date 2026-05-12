@@ -1,29 +1,19 @@
 import { createClient } from "@/lib/supabase/server";
 import { userRepository } from "@/repositories/user.repository";
+import { getSession, requireSession } from "@/lib/auth/get-session";
 import type { AuthUser } from "@/types/auth";
 
+// ─── Session helpers (delegate to unified get-session) ────────────────────────
+
 export async function getAuthUser(): Promise<AuthUser | null> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-
-  if (error || !user) return null;
-
-  const profile = await userRepository.findByAuthId(user.id);
-  if (!profile) return null;
-
-  return { supabase: user, profile };
+  return getSession();
 }
 
 export async function requireAuthUser(): Promise<AuthUser> {
-  const user = await getAuthUser();
-  if (!user) {
-    throw new Error("UNAUTHORIZED");
-  }
-  return user;
+  return requireSession();
 }
+
+// ─── OTP flow ─────────────────────────────────────────────────────────────────
 
 export async function sendOtp(email: string): Promise<void> {
   const supabase = await createClient();
@@ -49,7 +39,6 @@ export async function verifyOtp(email: string, token: string): Promise<void> {
   if (error) throw new Error(error.message);
   if (!data.user) throw new Error("Verification failed");
 
-  // Upsert user profile
   await userRepository.upsertByAuthId(data.user.id, {
     email: data.user.email!,
     name: (data.user.user_metadata?.["name"] as string | undefined) ?? null,
