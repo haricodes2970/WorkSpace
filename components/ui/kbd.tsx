@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-interface KbdProps extends React.HTMLAttributes<HTMLElement> {}
+type KbdProps = React.HTMLAttributes<HTMLElement>;
 
 export function Kbd({ className, children, ...props }: KbdProps) {
   return (

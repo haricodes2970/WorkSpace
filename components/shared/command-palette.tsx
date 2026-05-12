@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { Command } from "cmdk";
 import { motion, AnimatePresence } from "framer-motion";
@@ -50,7 +51,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     return () => document.removeEventListener("keydown", down);
   }, [open, onOpenChange, close]);
 
-  const navigate = (href: string) => {
+  const navigate = <T extends string>(href: Route<T>) => {
     router.push(href);
     close();
   };
