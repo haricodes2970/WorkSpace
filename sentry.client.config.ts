@@ -1,7 +1,10 @@
 import * as Sentry from "@sentry/nextjs";
 
+const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
+const hasDsn = Boolean(dsn && !dsn.toLowerCase().includes("your-"));
+
 Sentry.init({
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  dsn: hasDsn ? dsn : undefined,
   tracesSampleRate: 0.1,
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
@@ -11,5 +14,5 @@ Sentry.init({
       blockAllMedia: true,
     }),
   ],
-  enabled: process.env.NODE_ENV === "production",
+  enabled: process.env.NODE_ENV === "production" && hasDsn,
 });
