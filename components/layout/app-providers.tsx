@@ -16,7 +16,6 @@ export function AppProviders({ children }: AppProvidersProps) {
   // startTransition reserved for future capture action wiring
   const [, startTransition]           = useTransition();
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleCapture = (_data: { title: string; tags: string[] }) => {
     startTransition(async () => {
       // TODO: wire to createIdeaAction once available

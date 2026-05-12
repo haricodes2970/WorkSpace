@@ -4,7 +4,6 @@ import { requireAuthUser } from "@/services/auth.service";
 import { memoryRepository } from "@/features/intelligence/memories/memory.repository";
 import { insightRepository } from "@/features/intelligence/insights/insight.repository";
 import { retrospectiveRepository } from "@/features/intelligence/retrospectives/retrospective.repository";
-import { refreshInsights } from "@/features/intelligence/insights/insight.service";
 import {
   addMemoryAction, deleteMemoryAction, pinMemoryAction,
   dismissInsightAction, refreshInsightsAction,
