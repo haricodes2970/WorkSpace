@@ -43,7 +43,8 @@ Fill in all values from your Supabase project and Sentry.
    - Set OTP expiry: 600 seconds
 3. Copy `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` from **Settings → API**
 4. Copy `SUPABASE_SERVICE_ROLE_KEY` from same page (keep secret)
-5. Get `DATABASE_URL` from **Settings → Database → Connection string → URI**
+5. Set `DATABASE_URL` to the Supabase transaction pooler connection string for runtime use
+6. Set `DIRECT_URL` to the Supabase direct/session connection string for Prisma CLI commands
 
 ### 4. Database
 
