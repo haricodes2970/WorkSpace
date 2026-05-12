@@ -47,6 +47,11 @@ model User {
   builderProfile     BuilderProfile?
   projectNarratives  ProjectNarrative[]
 
+  // Phase Ω²: platformization
+  activityEvents     ActivityEvent[]
+  workspaces         Workspace[]
+  strategicReviews   StrategicReview[]
+
   @@index([authId])
   @@index([email])
   @@index([deletedAt])
@@ -620,6 +625,12 @@ enum EntityType {
   KNOWLEDGE_MEMORY
   MILESTONE
   BLOCKER
+  // Phase Ω² — Universal Entity Architecture
+  TASK
+  SCOPE_ITEM
+  RISK
+  RETROSPECTIVE
+  STRATEGIC_REVIEW
 }
 
 enum GraphRelationshipType {
@@ -790,4 +801,96 @@ model BuilderProfile {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("builder_profiles")
+}
+
+// ---------------------------------------------------------------------------
+// Phase Ω² — Platformization & Long-Term Durability
+// ---------------------------------------------------------------------------
+
+// ActivityEvent — append-only system-wide event stream for all entities
+model ActivityEvent {
+  id         String       @id @default(uuid()) @db.Uuid
+  userId     String       @map("user_id") @db.Uuid
+  entityType EntityType
+  entityId   String       @map("entity_id") @db.Uuid
+  kind       ActivityKind
+  payload    Json?
+  occurredAt DateTime     @default(now()) @map("occurred_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, occurredAt(sort: Desc)])
+  @@index([entityType, entityId, occurredAt(sort: Desc)])
+  @@index([kind, occurredAt(sort: Desc)])
+  @@map("activity_events")
+}
+
+enum ActivityKind {
+  CREATED
+  UPDATED
+  ARCHIVED
+  CONVERTED
+  LINKED
+  REVIEWED
+  COMPLETED
+  BLOCKED
+  RESUMED
+  SHIPPED
+  DELETED
+  RESTORED
+  TAGGED
+}
+
+// Workspace — scoped operating environment (single-user, isolated)
+model Workspace {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  name        String
+  slug        String
+  description String?
+  isDefault   Boolean  @default(false) @map("is_default")
+  settings    Json     @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, slug])
+  @@index([userId])
+  @@map("workspaces")
+}
+
+// StrategicReview — long-horizon reflection: monthly, quarterly, annual
+model StrategicReview {
+  id          String              @id @default(uuid()) @db.Uuid
+  userId      String              @map("user_id") @db.Uuid
+  type        StrategicReviewType
+  period      String
+  periodStart DateTime            @map("period_start") @db.Date
+  periodEnd   DateTime            @map("period_end") @db.Date
+
+  wins        String @default("")
+  struggles   String @default("")
+  patterns    String @default("")
+  nextFocus   String @default("") @map("next_focus")
+
+  snapshot    Json?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type, period])
+  @@index([userId, type])
+  @@map("strategic_reviews")
+}
+
+enum StrategicReviewType {
+  MONTHLY
+  QUARTERLY
+  ANNUAL
+  PORTFOLIO
+  EXECUTION_HEALTH
+  IDEA_CEMETERY
 }

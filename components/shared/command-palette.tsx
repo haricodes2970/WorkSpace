@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Lightbulb, FolderKanban, Zap, Brain,
   Plus, Search, ArrowRight, Sun, Clock, Loader2,
+  BookOpenText, Sparkles, Download,
 } from "lucide-react";
 import { motionPresets } from "@/lib/design-tokens";
 import { searchAction } from "@/features/intelligence/actions/intelligence-actions";
@@ -49,14 +50,18 @@ interface StaticItem {
 }
 
 const STATIC_ITEMS: StaticItem[] = [
-  { id: "today",     label: "Today",          group: "Navigate", icon: <Sun className="h-3.5 w-3.5" />,           shortcut: "G O", href: "/today"     },
-  { id: "dashboard", label: "Dashboard",      group: "Navigate", icon: <LayoutDashboard className="h-3.5 w-3.5" />, shortcut: "G D", href: "/dashboard" },
-  { id: "ideas",     label: "Ideas",          group: "Navigate", icon: <Lightbulb className="h-3.5 w-3.5" />,      shortcut: "G I", href: "/ideas"     },
-  { id: "projects",  label: "Projects",       group: "Navigate", icon: <FolderKanban className="h-3.5 w-3.5" />,   shortcut: "G P", href: "/projects"  },
-  { id: "tasks",     label: "Tasks",          group: "Navigate", icon: <Zap className="h-3.5 w-3.5" />,            shortcut: "G T", href: "/tasks"     },
-  { id: "knowledge", label: "Knowledge",      group: "Navigate", icon: <Brain className="h-3.5 w-3.5" />,          shortcut: "G K", href: "/knowledge" },
-  { id: "new-idea",  label: "New Idea",       group: "Create",   icon: <Plus className="h-3.5 w-3.5" />,           shortcut: "N I", href: "/ideas/new"    },
-  { id: "new-proj",  label: "New Project",    group: "Create",   icon: <Plus className="h-3.5 w-3.5" />,           shortcut: "N P", href: "/projects/new" },
+  { id: "today",     label: "Today",            group: "Navigate", icon: <Sun className="h-3.5 w-3.5" />,              shortcut: "G O", href: "/today"     },
+  { id: "dashboard", label: "Dashboard",        group: "Navigate", icon: <LayoutDashboard className="h-3.5 w-3.5" />,   shortcut: "G D", href: "/dashboard" },
+  { id: "ideas",     label: "Ideas",            group: "Navigate", icon: <Lightbulb className="h-3.5 w-3.5" />,         shortcut: "G I", href: "/ideas"     },
+  { id: "projects",  label: "Projects",         group: "Navigate", icon: <FolderKanban className="h-3.5 w-3.5" />,      shortcut: "G P", href: "/projects"  },
+  { id: "tasks",     label: "Tasks",            group: "Navigate", icon: <Zap className="h-3.5 w-3.5" />,               shortcut: "G T", href: "/tasks"     },
+  { id: "knowledge", label: "Knowledge",        group: "Navigate", icon: <Brain className="h-3.5 w-3.5" />,             shortcut: "G K", href: "/knowledge" },
+  { id: "advisor",   label: "Advisor",          group: "Navigate", icon: <Sparkles className="h-3.5 w-3.5" />,          shortcut: "G A", href: "/advisor"   },
+  { id: "reviews",   label: "Strategic Reviews",group: "Navigate", icon: <BookOpenText className="h-3.5 w-3.5" />,      shortcut: "G R", href: "/reviews"   },
+  { id: "new-idea",  label: "New Idea",         group: "Create",   icon: <Plus className="h-3.5 w-3.5" />,              shortcut: "N I", href: "/ideas/new"    },
+  { id: "new-proj",  label: "New Project",      group: "Create",   icon: <Plus className="h-3.5 w-3.5" />,              shortcut: "N P", href: "/projects/new" },
+  { id: "new-review",label: "New Review",       group: "Create",   icon: <Plus className="h-3.5 w-3.5" />,              shortcut: "N R", href: "/reviews/new"  },
+  { id: "export",    label: "Export Workspace", group: "System",   icon: <Download className="h-3.5 w-3.5" />,                           href: "/settings/export" },
 ];
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -213,7 +218,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                 {/* Static nav */}
                 {showStatic && (
                   <>
-                    {["Navigate", "Create"].map((group) => (
+                    {["Navigate", "Create", "System"].map((group) => (
                       <Command.Group key={group} heading={group} className={groupHeadingCls}>
                         {STATIC_ITEMS
                           .filter((i) => i.group === group)

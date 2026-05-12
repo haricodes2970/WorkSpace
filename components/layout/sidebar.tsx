@@ -10,6 +10,7 @@ import {
   Zap,
   Brain,
   Sparkles,
+  BookOpenText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
   { href: "/tasks",     label: "Tasks",     icon: Zap,           exact: false },
   { href: "/knowledge", label: "Knowledge", icon: Brain,         exact: false },
   { href: "/advisor",   label: "Advisor",   icon: Sparkles,      exact: false },
+  { href: "/reviews",   label: "Reviews",   icon: BookOpenText,  exact: false },
 ] as const;
 
 interface SidebarProps {
