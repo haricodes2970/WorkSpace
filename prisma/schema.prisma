@@ -6,7 +6,7 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DATABASE_URL_UNPOOLED")
+  directUrl = env("DIRECT_URL")
 }
 
 // ---------------------------------------------------------------------------
@@ -35,6 +35,13 @@ model User {
   scopeItems    ScopeItem[]
   risks         ProjectRisk[]
   blockers      Blocker[]
+
+  // Phase 5: knowledge + intelligence
+  memories           KnowledgeMemory[]
+  insights           InsightSnapshot[]
+  retrospectives     Retrospective[]
+  graphRelationships GraphRelationship[]
+  embeddingJobs      EmbeddingJob[]
 
   @@index([authId])
   @@index([email])
@@ -68,6 +75,7 @@ model Idea {
   blocks                IdeaBlock[]
   outgoingRelationships IdeaRelationship[] @relation("SourceRelationships")
   incomingRelationships IdeaRelationship[] @relation("TargetRelationships")
+  memories              KnowledgeMemory[]
 
   @@index([userId])
   @@index([status])
@@ -189,6 +197,10 @@ model Project {
   scopeItems    ScopeItem[]
   risks         ProjectRisk[]
   blockers      Blocker[]
+
+  // Phase 5: knowledge + intelligence
+  memories       KnowledgeMemory[]
+  retrospectives Retrospective[]
 
   // Phase 4: execution intelligence fields
   executionState   ExecutionState @default(PLANNING) @map("execution_state")
@@ -524,4 +536,211 @@ model Link {
   @@index([userId])
   @@index([deletedAt])
   @@map("links")
+}
+
+// ---------------------------------------------------------------------------
+// Phase 5 — Knowledge + Intelligence System
+// ---------------------------------------------------------------------------
+
+// KnowledgeMemory — durable capture of learnings, mistakes, discoveries, patterns
+// ---------------------------------------------------------------------------
+model KnowledgeMemory {
+  id           String     @id @default(uuid()) @db.Uuid
+  userId       String     @map("user_id") @db.Uuid
+  projectId    String?    @map("project_id") @db.Uuid
+  ideaId       String?    @map("idea_id") @db.Uuid
+  type         MemoryType
+  title        String
+  body         String     @default("")
+  tags         String[]   @default([])
+  significance Int        @default(5)
+  pinned       Boolean    @default(false)
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  deletedAt    DateTime?  @map("deleted_at")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project? @relation(fields: [projectId], references: [id])
+  idea    Idea?    @relation(fields: [ideaId], references: [id])
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([ideaId])
+  @@index([type])
+  @@index([deletedAt])
+  @@map("knowledge_memories")
+}
+
+enum MemoryType {
+  INSIGHT
+  MISTAKE
+  DISCOVERY
+  PATTERN
+  CONSTRAINT
+  LEARNING
+  BREAKTHROUGH
+  PIVOT
+}
+
+// GraphRelationship — cross-entity polymorphic connections
+// ---------------------------------------------------------------------------
+model GraphRelationship {
+  id         String                @id @default(uuid()) @db.Uuid
+  userId     String                @map("user_id") @db.Uuid
+  sourceType EntityType
+  sourceId   String                @map("source_id") @db.Uuid
+  targetType EntityType
+  targetId   String                @map("target_id") @db.Uuid
+  type       GraphRelationshipType
+  note       String?
+  createdAt  DateTime              @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceType, sourceId, targetType, targetId])
+  @@index([userId])
+  @@index([sourceType, sourceId])
+  @@index([targetType, targetId])
+  @@map("graph_relationships")
+}
+
+enum EntityType {
+  IDEA
+  PROJECT
+  DECISION
+  WEEKLY_REVIEW
+  NOTE
+  KNOWLEDGE_MEMORY
+  MILESTONE
+  BLOCKER
+}
+
+enum GraphRelationshipType {
+  RELATED_TO
+  INSPIRED_BY
+  BLOCKED_BY
+  DUPLICATES
+  EVOLVED_INTO
+  REFERENCES
+  CONTRADICTS
+  DEPENDS_ON
+  VALIDATES
+  REPLACES
+}
+
+// Embedding — pgvector semantic index (read/write via $queryRaw/$executeRaw only)
+// ---------------------------------------------------------------------------
+model Embedding {
+  id         String     @id @default(uuid()) @db.Uuid
+  entityType EntityType
+  entityId   String     @map("entity_id") @db.Uuid
+  content    String
+  vector     Unsupported("vector(1536)")?
+  model      String     @default("text-embedding-3-small")
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+
+  @@unique([entityType, entityId])
+  @@index([entityType])
+  @@map("embeddings")
+}
+
+// EmbeddingJob — DB-backed async queue for background embedding
+// ---------------------------------------------------------------------------
+model EmbeddingJob {
+  id          String             @id @default(uuid()) @db.Uuid
+  userId      String             @map("user_id") @db.Uuid
+  entityType  EntityType
+  entityId    String             @map("entity_id") @db.Uuid
+  content     String
+  status      EmbeddingJobStatus @default(PENDING)
+  attempts    Int                @default(0)
+  lastError   String?            @map("last_error")
+  createdAt   DateTime           @default(now()) @map("created_at")
+  processedAt DateTime?          @map("processed_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([entityType, entityId])
+  @@index([status, createdAt])
+  @@map("embedding_jobs")
+}
+
+enum EmbeddingJobStatus {
+  PENDING
+  PROCESSING
+  DONE
+  FAILED
+}
+
+// InsightSnapshot — persisted pattern-detection outputs
+// ---------------------------------------------------------------------------
+model InsightSnapshot {
+  id          String          @id @default(uuid()) @db.Uuid
+  userId      String          @map("user_id") @db.Uuid
+  type        InsightType
+  title       String
+  body        String
+  evidence    Json?
+  severity    InsightSeverity @default(INFO)
+  dismissed   Boolean         @default(false)
+  generatedAt DateTime        @default(now()) @map("generated_at")
+  expiresAt   DateTime?       @map("expires_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, dismissed])
+  @@index([generatedAt])
+  @@map("insight_snapshots")
+}
+
+enum InsightType {
+  BLOCKER_PATTERN
+  SCOPE_INFLATION
+  MOMENTUM_DECAY
+  ABANDONED_PATTERN
+  EXECUTION_BOTTLENECK
+  REVIEW_BENEFIT
+  DECISION_REVERSAL
+  VELOCITY_TREND
+}
+
+enum InsightSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+// Retrospective — structured periodic reflection with frozen snapshot
+// ---------------------------------------------------------------------------
+model Retrospective {
+  id          String            @id @default(uuid()) @db.Uuid
+  userId      String            @map("user_id") @db.Uuid
+  projectId   String?           @map("project_id") @db.Uuid
+  type        RetrospectiveType
+  title       String
+  period      String?
+  wentWell    String            @default("") @map("went_well")
+  wentPoorly  String            @default("") @map("went_poorly")
+  learned     String            @default("")
+  nextActions String            @default("") @map("next_actions")
+  snapshot    Json?
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project? @relation(fields: [projectId], references: [id])
+
+  @@index([userId])
+  @@index([projectId])
+  @@map("retrospectives")
+}
+
+enum RetrospectiveType {
+  WEEKLY
+  MONTHLY
+  PROJECT_CLOSE
+  IDEA_AUDIT
+  DECISION_REVIEW
+  QUARTERLY
 }
