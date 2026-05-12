@@ -15,8 +15,18 @@ import {
   deleteScopeItemAction,
   resolveBlockerAction,
 } from "@/features/execution/actions/execution-actions";
+import {
+  addMemoryAction,
+  deleteMemoryAction,
+  pinMemoryAction,
+  dismissInsightAction,
+  refreshInsightsAction,
+} from "@/features/intelligence/actions/intelligence-actions";
+import { memoryRepository } from "@/features/intelligence/memories/memory.repository";
+import { insightRepository } from "@/features/intelligence/insights/insight.repository";
 import type { ReviewFormData } from "@/features/execution/reviews/review-form";
 import type { DecisionFormInput } from "@/features/execution/decisions/decision-log";
+import type { MemoryFormInput } from "@/features/intelligence/memories/memory-panel";
 import type { ScopeBucket } from "@prisma/client";
 
 export const metadata: Metadata = { title: "Project" };
@@ -29,7 +39,11 @@ export default async function ProjectDetailPage({ params }: Props) {
   const { id } = await params;
   const { profile } = await requireAuthUser();
 
-  const raw = await projectRepository.findByIdWithRelations(id, profile.id);
+  const [raw, projectMemories, projectInsights] = await Promise.all([
+    projectRepository.findByIdWithRelations(id, profile.id),
+    memoryRepository.findByProject(id),
+    insightRepository.findActive(profile.id),
+  ]);
   if (!raw) notFound();
 
   // ── Map DB rows to UI shape ──────────────────────────────────────────────
@@ -130,6 +144,26 @@ export default async function ProjectDetailPage({ params }: Props) {
       resolved:    b.resolved,
       createdAt:   b.createdAt,
     })),
+
+    memories: projectMemories.map((m) => ({
+      id:           m.id,
+      type:         m.type,
+      title:        m.title,
+      body:         m.body,
+      tags:         m.tags,
+      significance: m.significance,
+      pinned:       m.pinned,
+      createdAt:    m.createdAt,
+    })),
+
+    insights: projectInsights.map((i) => ({
+      id:          i.id,
+      type:        i.type,
+      title:       i.title,
+      body:        i.body,
+      severity:    i.severity,
+      generatedAt: i.generatedAt,
+    })),
   };
 
   // ── Server action handlers ───────────────────────────────────────────────
@@ -189,6 +223,36 @@ export default async function ProjectDetailPage({ params }: Props) {
     redirect(`/projects/${id}`);
   }
 
+  async function handleAddMemory(data: MemoryFormInput) {
+    "use server";
+    await addMemoryAction({ ...data, projectId: id });
+    revalidatePath(`/projects/${id}`);
+  }
+
+  async function handleDeleteMemory(memId: string) {
+    "use server";
+    await deleteMemoryAction(memId);
+    revalidatePath(`/projects/${id}`);
+  }
+
+  async function handlePinMemory(memId: string, pinned: boolean) {
+    "use server";
+    await pinMemoryAction(memId, pinned);
+    revalidatePath(`/projects/${id}`);
+  }
+
+  async function handleDismissInsight(insightId: string) {
+    "use server";
+    await dismissInsightAction(insightId);
+    revalidatePath(`/projects/${id}`);
+  }
+
+  async function handleRefreshInsights() {
+    "use server";
+    await refreshInsightsAction();
+    revalidatePath(`/projects/${id}`);
+  }
+
   return (
     <ProjectCommandCenter
       project={project}
@@ -202,6 +266,11 @@ export default async function ProjectDetailPage({ params }: Props) {
       onMoveScopeItem={handleMoveScopeItem}
       onRemoveScopeItem={handleRemoveScopeItem}
       onResolveBlocker={handleResolveBlocker}
+      onAddMemory={handleAddMemory}
+      onDeleteMemory={handleDeleteMemory}
+      onPinMemory={handlePinMemory}
+      onDismissInsight={handleDismissInsight}
+      onRefreshInsights={handleRefreshInsights}
     />
   );
 }

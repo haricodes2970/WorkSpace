@@ -23,6 +23,8 @@ import { ReviewList } from "@/features/execution/reviews/review-list";
 import { DecisionLog } from "@/features/execution/decisions/decision-log";
 import { TimelineView } from "@/features/execution/timeline/timeline-view";
 import { calculateMomentum } from "@/features/execution/momentum/calculator";
+import { MemoryPanel, type MemoryData, type MemoryFormInput } from "@/features/intelligence/memories/memory-panel";
+import { InsightCards, type InsightData } from "@/features/intelligence/insights/insight-cards";
 
 import type {
   TaskStatus, Priority, MilestoneStatus, ProjectStatus, ScopeBucket,
@@ -57,6 +59,8 @@ export interface ProjectDetailData {
   decisions: DecisionData[];
   timelineEvents: TimelineEventData[];
   blockers: BlockerItem[];
+  memories: MemoryData[];
+  insights: InsightData[];
 }
 
 export interface TaskItem {
@@ -139,6 +143,11 @@ interface ProjectCommandCenterProps {
   onMoveScopeItem: (id: string, bucket: ScopeBucket) => Promise<void>;
   onRemoveScopeItem: (id: string) => Promise<void>;
   onResolveBlocker: (id: string) => Promise<void>;
+  onAddMemory: (data: MemoryFormInput) => Promise<void>;
+  onDeleteMemory: (id: string) => Promise<void>;
+  onPinMemory: (id: string, pinned: boolean) => Promise<void>;
+  onDismissInsight: (id: string) => Promise<void>;
+  onRefreshInsights: () => Promise<void>;
 }
 
 export function ProjectCommandCenter({
@@ -153,6 +162,11 @@ export function ProjectCommandCenter({
   onMoveScopeItem,
   onRemoveScopeItem,
   onResolveBlocker,
+  onAddMemory,
+  onDeleteMemory,
+  onPinMemory,
+  onDismissInsight,
+  onRefreshInsights,
 }: ProjectCommandCenterProps) {
   const doneTasks = project.tasks.filter((t) => t.status === "DONE").length;
   const progress = project.tasks.length > 0
@@ -175,7 +189,7 @@ export function ProjectCommandCenter({
     [project.tasks, project.milestones, project.createdAt]
   );
 
-  const [rightTab, setRightTab] = useState<"momentum" | "scope" | "blockers">("momentum");
+  const [rightTab, setRightTab] = useState<"momentum" | "scope" | "blockers" | "signal">("momentum");
 
   return (
     <div className="flex h-full overflow-hidden">
@@ -304,6 +318,12 @@ export function ProjectCommandCenter({
               )}
             </TabsTrigger>
             <TabsTrigger value="timeline">Timeline</TabsTrigger>
+            <TabsTrigger value="memory">
+              Memory
+              {project.memories.length > 0 && (
+                <span className="ml-1.5 text-[10px] text-[--color-text-muted]">{project.memories.length}</span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="notes">Notes</TabsTrigger>
             <TabsTrigger value="links">Links</TabsTrigger>
           </TabsList>
@@ -377,6 +397,20 @@ export function ProjectCommandCenter({
             </ScrollArea>
           </TabsContent>
 
+          {/* Memory */}
+          <TabsContent value="memory" className="flex-1 overflow-hidden">
+            <ScrollArea className="h-full">
+              <div className="px-6 py-4 max-w-2xl">
+                <MemoryPanel
+                  memories={project.memories}
+                  onAdd={onAddMemory}
+                  onDelete={onDeleteMemory}
+                  onPin={onPinMemory}
+                />
+              </div>
+            </ScrollArea>
+          </TabsContent>
+
           {/* Notes */}
           <TabsContent value="notes" className="flex-1 overflow-hidden">
             <ScrollArea className="h-full">
@@ -434,16 +468,18 @@ export function ProjectCommandCenter({
       <aside className="hidden xl:flex w-64 flex-col border-l border-[--color-border-subtle] bg-[--color-panel] shrink-0 overflow-hidden">
         {/* Tab nav */}
         <div className="flex border-b border-[--color-border-subtle] shrink-0">
-          {(["momentum", "scope", "blockers"] as const).map((tab) => {
+          {(["momentum", "scope", "blockers", "signal"] as const).map((tab) => {
             const icons = {
               momentum: <Zap className="h-3 w-3" />,
               scope:    <Package className="h-3 w-3" />,
+              signal:   <BarChart2 className="h-3 w-3" />,
               blockers: <Shield className="h-3 w-3" />,
             };
             const counts = {
               momentum: null,
               scope:    project.scopeItems.length || null,
               blockers: activeBlockers.length || null,
+              signal:   project.insights.filter((i) => !("dismissed" in i)).length || null,
             };
             return (
               <button
@@ -487,6 +523,14 @@ export function ProjectCommandCenter({
               <BlockerPanel
                 blockers={project.blockers}
                 onResolve={onResolveBlocker}
+              />
+            )}
+
+            {rightTab === "signal" && (
+              <InsightCards
+                insights={project.insights}
+                onDismiss={onDismissInsight}
+                onRefresh={onRefreshInsights}
               />
             )}
           </div>
