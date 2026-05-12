@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import {
   CheckSquare, Target, GitCommit, BarChart2, ClipboardList,
   ArrowRight, AlertCircle, CheckCircle, FileText, Rocket,
-  RefreshCw, Filter,
+  RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TimelineEventType } from "@prisma/client";
@@ -221,7 +221,7 @@ function FilterChip({
   active,
   onClick,
   label,
-  color,
+  color: _color,
 }: {
   active: boolean;
   onClick: () => void;

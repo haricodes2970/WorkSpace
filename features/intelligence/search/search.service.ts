@@ -158,7 +158,7 @@ export async function search(query: string, userId: string): Promise<SearchResul
   });
 
   // Also add semantic-only results not surfaced by text search
-  const existingIds = new Set(all.map((r) => r.id));
+  const _existingIds = new Set(all.map((r) => r.id));
   // (semantic-only results would require a second lookup — skip for now; text candidates are sufficient)
 
   return reranked.sort((a, b) => b.score - a.score).slice(0, 20);

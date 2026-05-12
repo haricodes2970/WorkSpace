@@ -1,6 +1,6 @@
-import type { ExecutionState } from "@prisma/client";
+import type { ExecutionState, TaskStatus, MilestoneStatus } from "@prisma/client";
 import { projectRepository } from "@/repositories/project.repository";
-import { calculateMomentum, type MomentumState } from "../momentum/calculator";
+import { calculateMomentum, type MomentumState, type MomentumResult } from "../momentum/calculator";
 
 function momentumStateToExecutionState(
   state: MomentumState,
@@ -31,11 +31,11 @@ export class MomentumService {
    */
   async syncProjectMomentum(
     projectId: string,
-    tasks: { status: import("@prisma/client").TaskStatus; completedAt: Date | null; updatedAt: Date }[],
-    milestones: { status: import("@prisma/client").MilestoneStatus; completedAt: Date | null }[],
+    tasks: { status: TaskStatus; completedAt: Date | null; updatedAt: Date }[],
+    milestones: { status: MilestoneStatus; completedAt: Date | null }[],
     projectCreatedAt: Date,
     currentProjectStatus: string
-  ): Promise<import("../momentum/calculator").MomentumResult> {
+  ): Promise<MomentumResult> {
     const result = calculateMomentum({ tasks, milestones, projectCreatedAt });
 
     const executionState = momentumStateToExecutionState(

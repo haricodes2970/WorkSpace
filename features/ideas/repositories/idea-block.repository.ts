@@ -1,4 +1,4 @@
-import type { IdeaBlock, BlockType } from "@prisma/client";
+import type { IdeaBlock, BlockType, RelationshipType } from "@prisma/client";
 import { BaseRepository } from "@/repositories/base.repository";
 
 export class IdeaBlockRepository extends BaseRepository {
@@ -53,7 +53,7 @@ export class IdeaRelationshipRepository extends BaseRepository {
     });
   }
 
-  async create(sourceId: string, targetId: string, type: import("@prisma/client").RelationshipType) {
+  async create(sourceId: string, targetId: string, type: RelationshipType) {
     return this.db.ideaRelationship.create({
       data: { sourceId, targetId, type },
     });

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Lightbulb, AlertTriangle, AlertCircle, TrendingDown, Package, RefreshCw } from "lucide-react";
+import { X, Lightbulb, AlertTriangle, AlertCircle, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { InsightType, InsightSeverity } from "@prisma/client";
 
@@ -31,17 +31,6 @@ const SEVERITY_CONFIG: Record<InsightSeverity, { border: string; bg: string; ico
   INFO:     { border: "border-[--color-border]",          bg: "bg-[--color-card]",          icon: <Lightbulb className="h-3.5 w-3.5 text-[--color-accent]" /> },
   WARNING:  { border: "border-[--color-warning]/30",      bg: "bg-[--color-warning]/5",      icon: <AlertTriangle className="h-3.5 w-3.5 text-[--color-warning]" /> },
   CRITICAL: { border: "border-[--color-danger]/30",       bg: "bg-[--color-danger]/5",       icon: <AlertCircle className="h-3.5 w-3.5 text-[--color-danger]" /> },
-};
-
-const TYPE_ICON: Record<InsightType, React.ReactNode> = {
-  BLOCKER_PATTERN:     <AlertCircle className="h-3 w-3" />,
-  SCOPE_INFLATION:     <Package className="h-3 w-3" />,
-  MOMENTUM_DECAY:      <TrendingDown className="h-3 w-3" />,
-  ABANDONED_PATTERN:   <AlertTriangle className="h-3 w-3" />,
-  EXECUTION_BOTTLENECK:<AlertTriangle className="h-3 w-3" />,
-  REVIEW_BENEFIT:      <Lightbulb className="h-3 w-3" />,
-  DECISION_REVERSAL:   <RefreshCw className="h-3 w-3" />,
-  VELOCITY_TREND:      <TrendingDown className="h-3 w-3" />,
 };
 
 // ─── Single Insight Card ──────────────────────────────────────────────────

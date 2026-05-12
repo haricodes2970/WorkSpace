@@ -3,8 +3,7 @@
 import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface SignOutButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+type SignOutButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 export function SignOutButton({ className, ...props }: SignOutButtonProps) {
   return (

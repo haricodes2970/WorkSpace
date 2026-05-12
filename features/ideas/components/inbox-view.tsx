@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { Inbox, ArrowRight, Lightbulb, ChevronRight, Clock, Trash2, Pencil } from "lucide-react";
+import { Inbox, Lightbulb, ChevronRight, Clock, Trash2, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "@/lib/utils";
 import type { ReadinessStatus } from "@prisma/client";

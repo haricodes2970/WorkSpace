@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { BaseRepository } from "@/repositories/base.repository";
 import type { InsightSnapshot, InsightType } from "@prisma/client";
 

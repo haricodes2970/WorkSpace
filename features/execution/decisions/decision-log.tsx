@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   GitCommit, Plus, ChevronDown, ChevronRight,
-  RotateCcw, X, AlertTriangle,
+  RotateCcw, X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "@/lib/utils";

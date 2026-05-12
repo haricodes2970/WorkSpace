@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link2, Plus, X, ChevronDown, ChevronRight, ArrowRight, ArrowLeft } from "lucide-react";
+import { Link2, X, ChevronDown, ChevronRight, ArrowRight, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { EntityType, GraphRelationshipType } from "@prisma/client";
 import type { GraphEdge } from "./graph.repository";

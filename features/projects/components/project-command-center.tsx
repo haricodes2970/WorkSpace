@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   CheckSquare, Circle, Clock, Lightbulb, ArrowRight,
   Plus, MoreHorizontal, Rocket, AlertCircle, Flag,
-  Link2, Target, Calendar, GitCommit, ClipboardList,
+  Link2, Target, Calendar,
   Package, Shield, Zap, BarChart2,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -14,7 +14,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn, formatDate, formatRelativeTime } from "@/lib/utils";
-import { motionPresets } from "@/lib/design-tokens";
+
 
 import { MomentumPanel } from "@/features/execution/momentum/momentum-panel";
 import { MomentumBadge } from "@/features/execution/momentum/momentum-badge";

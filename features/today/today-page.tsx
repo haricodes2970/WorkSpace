@@ -67,7 +67,7 @@ function StaleItem({ id, title, daysSince }: { id: string; title: string; daysSi
 }
 
 function DecisionItem({
-  id,
+  id: _id,
   title,
   projectTitle,
   projectId,

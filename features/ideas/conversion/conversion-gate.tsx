@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import { ReadinessRing } from "../readiness/readiness-ring";
 import { ReadinessBreakdown } from "../readiness/readiness-breakdown";
 import type { ReadinessScore } from "../readiness/calculator";
-import type { ReadinessStatus } from "@prisma/client";
 
 // ─── Types ────────────────────────────────────────────────────────────────
 

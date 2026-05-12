@@ -1,11 +1,10 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { requireAuthUser } from "@/services/auth.service";
 import { convertIdeaSchema } from "@/schemas/conversion";
 import { ideaRepository } from "@/repositories/idea.repository";
 import { ideaBlockRepository } from "../repositories/idea-block.repository";
-import { calculateReadiness, CONVERSION_THRESHOLD, CONVERSION_REQUIRED } from "../readiness/calculator";
+import { calculateReadiness, CONVERSION_THRESHOLD } from "../readiness/calculator";
 import { prisma } from "@/lib/prisma/client";
 import type { ActionResult } from "@/types/api";
 import type { BlockType } from "@prisma/client";

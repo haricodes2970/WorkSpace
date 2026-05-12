@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect } from "react";
-import { motion } from "framer-motion";
 import type { BlockType } from "@prisma/client";
 import { ThinkingBlock } from "./thinking-block";
 import { BLOCK_DEFINITIONS } from "./block-types";
@@ -19,7 +18,7 @@ export function BlocksEditor({
   editor,
   blockSaveStatus,
   onContentChange,
-  readOnly = false,
+  readOnly: _readOnly = false,
 }: BlocksEditorProps) {
   const { blocks, collapsed, activeBlock, setActive, toggleCollapse, setContent } = editor;
 

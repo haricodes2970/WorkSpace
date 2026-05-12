@@ -285,7 +285,7 @@ export function RetrospectiveList({ retrospectives, onDelete, onAdd }: Retrospec
           <BookOpen className="h-7 w-7 text-[--color-text-muted] opacity-25 mb-2" />
           <p className="text-[12px] text-[--color-text-muted]">No retrospectives yet</p>
           <p className="text-[11px] text-[--color-text-muted] opacity-70 mt-0.5">
-            Reflect on what worked, what didn't, and what changed.
+            Reflect on what worked, what didn&apos;t, and what changed.
           </p>
         </div>
       ) : (

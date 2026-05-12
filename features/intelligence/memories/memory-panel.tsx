@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Brain, Plus, Pin, Trash2, X, ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatRelativeTime } from "@/lib/utils";
 import type { MemoryType } from "@prisma/client";
 

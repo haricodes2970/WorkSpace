@@ -2,12 +2,10 @@
 
 import { useState, useCallback, useTransition, useEffect } from "react";
 import { Command } from "cmdk";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, Lightbulb, FolderKanban, FileText, Brain,
   GitCommit, Loader2, X,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { searchAction } from "../actions/intelligence-actions";
 import type { SearchResult, SearchResultType } from "./search.service";
 import Link from "next/link";
@@ -129,7 +127,7 @@ export function SearchBar({ onClose }: SearchBarProps) {
 
           {query && results.length === 0 && !isPending && (
             <Command.Empty className="flex flex-col items-center justify-center py-12 text-center">
-              <p className="text-[13px] text-[--color-text-muted]">No results for "{query}"</p>
+              <p className="text-[13px] text-[--color-text-muted]">No results for &ldquo;{query}&rdquo;</p>
             </Command.Empty>
           )}
 

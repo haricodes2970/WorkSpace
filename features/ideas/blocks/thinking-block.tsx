@@ -24,7 +24,7 @@ interface ThinkingBlockProps {
 export function ThinkingBlock({
   def,
   content,
-  completed,
+  completed: _completed,
   collapsed,
   active,
   saveStatus,

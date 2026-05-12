@@ -5,7 +5,6 @@ import { FolderKanban, Lightbulb, Zap, Rocket, ArrowRight, Clock } from "lucide-
 import type { Route } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { motionPresets } from "@/lib/design-tokens";
 import { formatRelativeTime } from "@/lib/utils";
 

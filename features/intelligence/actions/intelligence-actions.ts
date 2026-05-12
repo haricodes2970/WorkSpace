@@ -3,14 +3,13 @@
 import { requireAuthUser } from "@/services/auth.service";
 import { memoryRepository } from "../memories/memory.repository";
 import { insightRepository } from "../insights/insight.repository";
-import { graphRepository } from "../graph/graph.repository";
 import { retrospectiveRepository } from "../retrospectives/retrospective.repository";
 import { linkEntities, unlinkEntities } from "../graph/graph.service";
 import { refreshInsights } from "../insights/insight.service";
 import { enqueueEmbedding } from "../embeddings/embedding.queue";
 import { search } from "../search/search.service";
 import type { ActionResult } from "@/types/api";
-import type { KnowledgeMemory, GraphRelationship, InsightSnapshot, Retrospective } from "@prisma/client";
+import type { KnowledgeMemory, GraphRelationship, Retrospective } from "@prisma/client";
 import { z } from "zod";
 
 // ─── Memory ───────────────────────────────────────────────────────────────

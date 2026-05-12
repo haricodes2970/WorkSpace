@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Tag, X, Clock, Zap, AlertCircle, Check, Archive, Rocket,
+  Tag, X, Clock, AlertCircle, Check, Archive, Rocket,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ import type { BlockType, IdeaStatus, ReadinessStatus, RelationshipType } from "@
 import type { BlockEditorBlock } from "../hooks/use-block-editor";
 import type { IdeaRelationshipItem } from "./relationships-panel";
 import type { ConversionConfig } from "../conversion/conversion-gate";
+import type { SaveStatus } from "../hooks/use-autosave";
 
 // ─── Types ────────────────────────────────────────────────────────────────
 
@@ -70,7 +71,7 @@ export function IdeaEditor({
   const [rightTab, setRightTab] = useState<"readiness" | "health" | "relations">("readiness");
 
   // Per-block autosave tracking
-  const [blockSaveStatus, setBlockSaveStatus] = useState<Map<BlockType, import("../hooks/use-autosave").SaveStatus>>(new Map());
+  const [blockSaveStatus, setBlockSaveStatus] = useState<Map<BlockType, SaveStatus>>(new Map());
 
   const pendingBlocks = useRef<Map<BlockType, ReturnType<typeof setTimeout>>>(new Map());
 
@@ -357,7 +358,7 @@ export function IdeaEditor({
 
 // ─── Save status indicator ────────────────────────────────────────────────
 
-function AutoSaveIndicator({ status }: { status: import("../hooks/use-autosave").SaveStatus }) {
+function AutoSaveIndicator({ status }: { status: SaveStatus }) {
   return (
     <AnimatePresence mode="wait">
       {status === "saving" && (
