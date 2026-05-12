@@ -67,7 +67,7 @@ export function OtpForm({ email, onBack }: OtpFormProps) {
     e.preventDefault();
     const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, OTP_LENGTH);
     const next   = [...digits];
-    for (let i = 0; i < pasted.length; i++) next[i] = pasted[i];
+    for (let i = 0; i < pasted.length; i++) next[i] = pasted[i] ?? "";
     setDigits(next);
     focusAt(Math.min(pasted.length, OTP_LENGTH - 1));
   }
