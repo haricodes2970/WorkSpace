@@ -4,12 +4,56 @@ import { NextResponse, type NextRequest } from "next/server";
 const PUBLIC_ROUTES = ["/login", "/verify", "/auth/callback"];
 const AUTH_ROUTES = ["/login", "/verify"];
 
+type SupabaseEnv =
+  | { url: string; anonKey: string }
+  | { error: NextResponse };
+
+function getSupabaseEnv(): SupabaseEnv {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !anonKey) {
+    const missing: string[] = [];
+
+    if (!url) missing.push("NEXT_PUBLIC_SUPABASE_URL");
+    if (!anonKey) missing.push("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+
+    if (process.env.NODE_ENV === "development") {
+      console.error("[middleware] Missing Supabase env vars:", {
+        missing,
+        cwd: process.cwd(),
+      });
+    }
+
+    return {
+      error: new NextResponse(
+        `Missing required Supabase environment variable(s): ${missing.join(", ")}`,
+        { status: 500 }
+      ),
+    };
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    console.info("[middleware] Supabase env loaded", {
+      hasUrl: Boolean(url),
+      hasAnonKey: Boolean(anonKey),
+    });
+  }
+
+  return { url, anonKey };
+}
+
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
+  const env = getSupabaseEnv();
+
+  if ("error" in env) {
+    return env.error;
+  }
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    env.url,
+    env.anonKey,
     {
       cookies: {
         getAll() {
