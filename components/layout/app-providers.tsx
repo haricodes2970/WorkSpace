@@ -1,24 +1,31 @@
 "use client";
 
-import { useState } from "react";
-import { CommandPalette } from "@/components/shared/command-palette";
-import { QuickCapture } from "@/components/shared/quick-capture";
-
+import { useState, useTransition } from "react";
+import { CommandPalette }    from "@/components/shared/command-palette";
+import { QuickCapture }      from "@/components/shared/quick-capture";
+import { OfflineBanner }     from "@/features/reliability/offline-banner";
+import { FocusModeProvider } from "@/features/focus-mode/focus-mode-context";
+import { DiagnosticsPanel }  from "@/features/diagnostics/diagnostics-panel";
 interface AppProvidersProps {
   children: React.ReactNode;
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
-  const [cmdOpen, setCmdOpen] = useState(false);
+  const [cmdOpen, setCmdOpen]         = useState(false);
   const [captureOpen, setCaptureOpen] = useState(false);
+  // startTransition reserved for future capture action wiring
+  const [, startTransition]           = useTransition();
 
-  const handleCapture = async (data: { title: string; tags: string[] }) => {
-    // Wire to createIdeaAction in Phase 2
-    console.log("capture", data);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleCapture = (_data: { title: string; tags: string[] }) => {
+    startTransition(async () => {
+      // TODO: wire to createIdeaAction once available
+    });
   };
 
   return (
-    <>
+    <FocusModeProvider>
+      <OfflineBanner />
       {children}
       <CommandPalette open={cmdOpen} onOpenChange={setCmdOpen} />
       <QuickCapture
@@ -26,6 +33,7 @@ export function AppProviders({ children }: AppProvidersProps) {
         onOpenChange={setCaptureOpen}
         onSubmit={handleCapture}
       />
-    </>
+      <DiagnosticsPanel />
+    </FocusModeProvider>
   );
 }
