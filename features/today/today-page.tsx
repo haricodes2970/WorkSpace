@@ -9,11 +9,14 @@ import {
 } from "lucide-react";
 import { motionPresets } from "@/lib/design-tokens";
 import { formatRelativeTime } from "@/lib/utils";
-import { BuildCard }      from "./components/build-card";
-import { TaskQueue }      from "./components/task-queue";
-import { BlockerStrip }   from "./components/blocker-strip";
-import { InsightBanner }  from "./components/insight-banner";
-import type { TodayData } from "./today.service";
+import { BuildCard }          from "./components/build-card";
+import { TaskQueue }          from "./components/task-queue";
+import { BlockerStrip }       from "./components/blocker-strip";
+import { InsightBanner }      from "./components/insight-banner";
+import { ContinueWorking }    from "@/features/continuity/components/continue-working";
+import { AmbientStrip }       from "@/features/ambient/components/ambient-strip";
+import { AgeBadge }           from "@/features/temporal/components/age-badge";
+import type { TodayData }     from "./today.service";
 
 // ─── Section wrapper ─────────────────────────────────────────────────────────
 
@@ -50,7 +53,12 @@ function Section({
 
 // ─── Right panel items ───────────────────────────────────────────────────────
 
-function StaleItem({ id, title, daysSince }: { id: string; title: string; daysSince: number }) {
+function StaleItem({ id, title, daysSince, updatedAt }: {
+  id:        string;
+  title:     string;
+  daysSince: number;
+  updatedAt?: Date | string;
+}) {
   return (
     <Link
       href={`/projects/${id}` as `/projects/${string}`}
@@ -59,9 +67,13 @@ function StaleItem({ id, title, daysSince }: { id: string; title: string; daysSi
       <p className="text-[12px] text-[--color-text-secondary] group-hover:text-[--color-text-primary] truncate transition-colors">
         {title}
       </p>
-      <span className="text-[11px] text-[--color-text-muted] shrink-0 ml-2">
-        {daysSince}d
-      </span>
+      {updatedAt ? (
+        <AgeBadge updatedAt={updatedAt} className="ml-2 shrink-0" />
+      ) : (
+        <span className="text-[11px] text-[--color-text-muted] shrink-0 ml-2">
+          {daysSince}d
+        </span>
+      )}
     </Link>
   );
 }
@@ -183,6 +195,11 @@ export function TodayPage({ data, userName, onDismissInsight }: TodayPageProps) 
 
           {/* Left: execution surface */}
           <div className="flex flex-col gap-6 p-6 border-r border-[--color-border-subtle] overflow-y-auto">
+
+            {/* Continue working */}
+            <motion.div {...motionPresets.fadeUp} transition={{ delay: 0.02, duration: 0.2 }}>
+              <ContinueWorking />
+            </motion.div>
 
             {/* Active builds */}
             <motion.div {...motionPresets.fadeUp} transition={{ delay: 0.05, duration: 0.2 }}>
@@ -319,6 +336,11 @@ export function TodayPage({ data, userName, onDismissInsight }: TodayPageProps) 
                 </p>
               </div>
             )}
+
+            {/* Ambient intelligence */}
+            <motion.div {...motionPresets.fadeUp} transition={{ delay: 0.18, duration: 0.2 }}>
+              <AmbientStrip />
+            </motion.div>
           </div>
         </div>
       </div>

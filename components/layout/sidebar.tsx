@@ -11,7 +11,9 @@ import {
   Brain,
   Sparkles,
   BookOpenText,
+  User,
 } from "lucide-react";
+import { FlowIndicator } from "@/features/flow-state/components/flow-indicator";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -23,6 +25,7 @@ const NAV_ITEMS = [
   { href: "/knowledge", label: "Knowledge", icon: Brain,         exact: false },
   { href: "/advisor",   label: "Advisor",   icon: Sparkles,      exact: false },
   { href: "/reviews",   label: "Reviews",   icon: BookOpenText,  exact: false },
+  { href: "/profile",   label: "Profile",   icon: User,          exact: true  },
 ] as const;
 
 interface SidebarProps {
@@ -89,6 +92,9 @@ export function Sidebar({ signOutSlot, showDevBadge = false }: SidebarProps) {
             DEV AUTH
           </div>
         )}
+        <div className="px-2.5 py-1 flex items-center justify-end">
+          <FlowIndicator showLabel />
+        </div>
         {signOutSlot}
       </div>
     </aside>

@@ -52,6 +52,9 @@ model User {
   workspaces         Workspace[]
   strategicReviews   StrategicReview[]
 
+  // Phase Σ: OS experience
+  session            UserSession?
+
   @@index([authId])
   @@index([email])
   @@index([deletedAt])
@@ -893,4 +896,20 @@ enum StrategicReviewType {
   PORTFOLIO
   EXECUTION_HEALTH
   IDEA_CEMETERY
+}
+
+// Phase Σ: continuity + working set persistence
+model UserSession {
+  id                    String   @id @default(uuid()) @db.Uuid
+  userId                String   @unique @map("user_id") @db.Uuid
+  lastActiveProjectId   String?  @map("last_active_project_id") @db.Uuid
+  lastVisitedEntityKind String?  @map("last_visited_entity_kind")
+  lastVisitedEntityId   String?  @map("last_visited_entity_id") @db.Uuid
+  workingSet            Json     @default("[]") @map("working_set")
+  sessionData           Json     @default("{}") @map("session_data")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_sessions")
 }
