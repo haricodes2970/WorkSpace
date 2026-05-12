@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { requireAuthUser } from "@/lib/auth/require-auth-user";
+import { requireSession as requireAuthUser } from "@/lib/auth/get-session";
 import { getBuilderProfile } from "@/features/builder-profile/builder-profile.service";
 import { ProfileSummary }    from "@/features/builder-profile/components/profile-summary";
 import { EvolutionTimeline } from "@/features/temporal/components/evolution-timeline";
