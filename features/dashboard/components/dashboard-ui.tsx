@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { FolderKanban, Lightbulb, Zap, Rocket, ArrowRight, Clock } from "lucide-react";
+import type { Route } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -12,7 +13,7 @@ interface StatCardProps {
   label: string;
   value: string | number;
   icon: React.ReactNode;
-  href: string;
+  href: Route;
   change?: string;
 }
 
@@ -73,6 +74,32 @@ const activityConfig = {
 
 export function DashboardUI({ userName, stats, recentActivity }: DashboardUIProps) {
   const greeting = userName ? `${userName.split(" ")[0]}` : "there";
+  const statCards: StatCardProps[] = [
+    {
+      label: "Active Projects",
+      value: stats.activeProjects,
+      icon: <FolderKanban className="h-4 w-4" />,
+      href: "/projects",
+    },
+    {
+      label: "Open Ideas",
+      value: stats.openIdeas,
+      icon: <Lightbulb className="h-4 w-4" />,
+      href: "/ideas",
+    },
+    {
+      label: "Tasks Due Today",
+      value: stats.tasksDueToday,
+      icon: <Zap className="h-4 w-4" />,
+      href: "/tasks",
+    },
+    {
+      label: "Shipped",
+      value: stats.shipped,
+      icon: <Rocket className="h-4 w-4" />,
+      href: "/projects?status=shipped",
+    },
+  ];
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-5xl">
@@ -96,32 +123,7 @@ export function DashboardUI({ userName, stats, recentActivity }: DashboardUIProp
           visible: { transition: { staggerChildren: 0.05 } },
         }}
       >
-        {[
-          {
-            label: "Active Projects",
-            value: stats.activeProjects,
-            icon: <FolderKanban className="h-4 w-4" />,
-            href: "/projects",
-          },
-          {
-            label: "Open Ideas",
-            value: stats.openIdeas,
-            icon: <Lightbulb className="h-4 w-4" />,
-            href: "/ideas",
-          },
-          {
-            label: "Tasks Due Today",
-            value: stats.tasksDueToday,
-            icon: <Zap className="h-4 w-4" />,
-            href: "/tasks",
-          },
-          {
-            label: "Shipped",
-            value: stats.shipped,
-            icon: <Rocket className="h-4 w-4" />,
-            href: "/projects?status=shipped",
-          },
-        ].map((stat) => (
+        {statCards.map((stat) => (
           <motion.div
             key={stat.label}
             variants={{

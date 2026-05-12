@@ -8,6 +8,7 @@ import { saveBlockAction } from "@/features/ideas/actions/block-actions";
 import { convertIdeaAction } from "@/features/ideas/actions/conversion-actions";
 import type { BlockEditorBlock } from "@/features/ideas/hooks/use-block-editor";
 import type { IdeaRelationshipItem } from "@/features/ideas/components/relationships-panel";
+import type { ConversionConfig } from "@/features/ideas/conversion/conversion-gate";
 import type { BlockType } from "@prisma/client";
 
 export const metadata: Metadata = { title: "Idea" };
@@ -73,7 +74,7 @@ export default async function IdeaDetailPage({ params }: Props) {
     });
   }
 
-  async function handleConvert(config: import("@/features/ideas/conversion/conversion-gate").ConversionConfig) {
+  async function handleConvert(config: ConversionConfig) {
     "use server";
     const result = await convertIdeaAction({
       ideaId: id,
