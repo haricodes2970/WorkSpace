@@ -9,6 +9,7 @@ import {
   FolderKanban,
   Zap,
   Brain,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
   { href: "/projects",  label: "Projects",  icon: FolderKanban,  exact: false },
   { href: "/tasks",     label: "Tasks",     icon: Zap,           exact: false },
   { href: "/knowledge", label: "Knowledge", icon: Brain,         exact: false },
+  { href: "/advisor",   label: "Advisor",   icon: Sparkles,      exact: false },
 ] as const;
 
 interface SidebarProps {

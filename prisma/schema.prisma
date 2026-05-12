@@ -43,6 +43,10 @@ model User {
   graphRelationships GraphRelationship[]
   embeddingJobs      EmbeddingJob[]
 
+  // Phase ∞: intelligent execution layer
+  builderProfile     BuilderProfile?
+  projectNarratives  ProjectNarrative[]
+
   @@index([authId])
   @@index([email])
   @@index([deletedAt])
@@ -201,6 +205,9 @@ model Project {
   // Phase 5: knowledge + intelligence
   memories       KnowledgeMemory[]
   retrospectives Retrospective[]
+
+  // Phase ∞: intelligent execution layer
+  narrative      ProjectNarrative?
 
   // Phase 4: execution intelligence fields
   executionState   ExecutionState @default(PLANNING) @map("execution_state")
@@ -703,6 +710,10 @@ enum InsightType {
   REVIEW_BENEFIT
   DECISION_REVERSAL
   VELOCITY_TREND
+  // Phase ∞ — Advisor signals
+  FAILURE_RISK
+  MVP_DRIFT
+  SCOPE_COMPRESSION
 }
 
 enum InsightSeverity {
@@ -743,4 +754,40 @@ enum RetrospectiveType {
   IDEA_AUDIT
   DECISION_REVIEW
   QUARTERLY
+}
+
+// ---------------------------------------------------------------------------
+// Phase ∞ — Intelligent Execution Layer
+// ---------------------------------------------------------------------------
+
+// ProjectNarrative — cached execution narrative per project
+model ProjectNarrative {
+  id          String   @id @default(uuid()) @db.Uuid
+  projectId   String   @unique @map("project_id") @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  summary     String   @default("")
+  chapter     String   @default("")
+  phase       String   @default("")
+  generation  Int      @default(0)
+  generatedAt DateTime @default(now()) @map("generated_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("project_narratives")
+}
+
+// BuilderProfile — behavioral DNA snapshot for a user
+model BuilderProfile {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @unique @map("user_id") @db.Uuid
+  data         Json
+  generatedAt  DateTime @default(now()) @map("generated_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("builder_profiles")
 }
