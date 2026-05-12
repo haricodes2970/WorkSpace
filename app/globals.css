@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Enable dark: utility prefix — reads .dark class on <html> (set by next-themes) */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ─── Design Tokens ──────────────────────────────────────────────────────── */
 @theme {
   /* Surfaces */
@@ -159,3 +162,17 @@ body {
 .animate-fade-in    { animation: fade-in var(--duration-base) var(--ease-out); }
 .animate-slide-left { animation: slide-in-left var(--duration-base) var(--ease-out); }
 .animate-pulse-subtle { animation: pulse-subtle 2s ease-in-out infinite; }
+
+/* ─── Light Mode (auth pages + future light-mode surfaces) ──────────────── */
+/* Applied when next-themes sets .light (or no .dark) on <html> */
+html.light {
+  color-scheme: light;
+}
+
+/* Auth-specific: input placeholder + focus styles work in both modes */
+input::placeholder { opacity: 1; }
+
+/* Prevent FOUC on auth background before theme mounts */
+.auth-bg-shell {
+  isolation: isolate;
+}

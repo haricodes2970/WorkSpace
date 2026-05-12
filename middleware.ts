@@ -1,8 +1,8 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_ROUTES = ["/login", "/verify", "/api/auth/callback", "/dev-login"];
-const AUTH_ROUTES   = ["/login", "/verify"];
+const PUBLIC_ROUTES = ["/login", "/register", "/verify", "/callback", "/api/auth/callback", "/dev-login"];
+const AUTH_ROUTES   = ["/login", "/register", "/verify"];
 
 // ─── Dev bypass ───────────────────────────────────────────────────────────────
 

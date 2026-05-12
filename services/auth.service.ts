@@ -21,7 +21,7 @@ export async function sendOtp(email: string): Promise<void> {
     email,
     options: {
       shouldCreateUser: true,
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/callback`,
     },
   });
 

@@ -1,17 +1,18 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
+import { Providers } from "./providers";
 import "./globals.css";
 
 const inter = Inter({
-  subsets: ["latin"],
+  subsets:  ["latin"],
   variable: "--font-inter",
-  display: "swap",
+  display:  "swap",
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "WorkSpace",
+    default:  "WorkSpace",
     template: "%s | WorkSpace",
   },
   description: "Personal execution operating system for indie builders.",
@@ -19,31 +20,29 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0B0F14",
-  colorScheme: "dark",
-  width: "device-width",
+  themeColor:  "#0B0F14",
+  colorScheme: "dark light",
+  width:       "device-width",
   initialScale: 1,
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`dark ${inter.variable}`}>
+    // suppressHydrationWarning: next-themes manages the class on <html> after hydration
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body>
-        {children}
+        <Providers>
+          {children}
+        </Providers>
         <Toaster
-          theme="dark"
           position="bottom-right"
           gap={8}
           toastOptions={{
             style: {
               background: "var(--color-card)",
-              border: "1px solid var(--color-border)",
-              color: "var(--color-text-primary)",
-              fontSize: "13px",
+              border:     "1px solid var(--color-border)",
+              color:      "var(--color-text-primary)",
+              fontSize:   "13px",
             },
           }}
         />
