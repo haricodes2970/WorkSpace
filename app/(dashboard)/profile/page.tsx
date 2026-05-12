@@ -1,8 +1,13 @@
 import { Suspense } from "react";
 import { requireAuthUser } from "@/lib/auth/require-auth-user";
 import { getBuilderProfile } from "@/features/builder-profile/builder-profile.service";
-import { ProfileSummary }   from "@/features/builder-profile/components/profile-summary";
-import { User }             from "lucide-react";
+import { ProfileSummary }    from "@/features/builder-profile/components/profile-summary";
+import { EvolutionTimeline } from "@/features/temporal/components/evolution-timeline";
+import { FocusSummary }      from "@/features/attention/components/focus-summary";
+import { HealthPanel }       from "@/features/environment/components/health-panel";
+import { AlignmentMap }      from "@/features/drift/components/alignment-map";
+import { DensityControls }   from "@/features/environment/components/density-controls";
+import { User }              from "lucide-react";
 
 async function ProfileContent() {
   const user    = await requireAuthUser();
@@ -52,6 +57,29 @@ async function ProfileContent() {
           </div>
         </div>
       )}
+
+      {/* Intelligence panels */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="rounded-lg border border-[--color-border] bg-[--color-card] p-4">
+          <FocusSummary />
+        </div>
+        <div className="rounded-lg border border-[--color-border] bg-[--color-card] p-4">
+          <AlignmentMap />
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-[--color-border] bg-[--color-card] p-4">
+        <EvolutionTimeline />
+      </div>
+
+      <div className="rounded-lg border border-[--color-border] bg-[--color-card] p-4">
+        <HealthPanel />
+      </div>
+
+      {/* Environment preferences */}
+      <div className="flex items-center justify-between rounded-lg border border-[--color-border] bg-[--color-card] px-4 py-3">
+        <DensityControls />
+      </div>
     </div>
   );
 }

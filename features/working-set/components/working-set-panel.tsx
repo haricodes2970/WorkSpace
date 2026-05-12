@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Layers, X, Trash2, FolderKanban, Lightbulb, Brain, LayoutDashboard } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useWorkingSet } from "@/features/working-set/working-set-context";
+import { ClusterPanel }  from "@/features/working-set/components/cluster-panel";
 import { motionPresets } from "@/lib/design-tokens";
 import type { WorkingSetEntry } from "@/lib/session-store";
 
@@ -98,21 +99,9 @@ export function WorkingSetPanel() {
                 </div>
               </div>
 
-              {/* Items */}
+              {/* Items — clustered */}
               <div className="p-1.5 max-h-72 overflow-y-auto">
-                {entries.length === 0 ? (
-                  <p className="px-2 py-4 text-center text-[12px] text-[--color-text-muted]">
-                    Pin items to keep them in focus
-                  </p>
-                ) : (
-                  entries.map((e) => (
-                    <WorkingSetEntry
-                      key={`${e.entityKind}:${e.entityId}`}
-                      entry={e}
-                      onUnpin={() => unpin(e.entityKind, e.entityId)}
-                    />
-                  ))
-                )}
+                <ClusterPanel />
               </div>
             </motion.div>
           </>

@@ -55,6 +55,9 @@ model User {
   // Phase Σ: OS experience
   session            UserSession?
 
+  // Phase Ψ: self-evolution
+  usageSnapshots     UsageSnapshot[]
+
   @@index([authId])
   @@index([email])
   @@index([deletedAt])
@@ -907,9 +910,26 @@ model UserSession {
   lastVisitedEntityId   String?  @map("last_visited_entity_id") @db.Uuid
   workingSet            Json     @default("[]") @map("working_set")
   sessionData           Json     @default("{}") @map("session_data")
+  adaptationData        Json     @default("{}") @map("adaptation_data")
   updatedAt             DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_sessions")
+}
+
+// Phase Ψ: aggregated usage snapshots for trend analysis
+model UsageSnapshot {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  period    String   // e.g. "2026-W20", "2026-05"
+  data      Json     // aggregated: navCounts, commandCounts, entityAccess, focusMinutes
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, period])
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("usage_snapshots")
 }
