@@ -1,9 +1,6 @@
 "use client";
 
 import { useRef, useState, useCallback, type KeyboardEvent, type ClipboardEvent } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { motion } from "framer-motion";
 import { Loader2, ArrowLeft, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -11,11 +8,6 @@ import { verifyOtpAction } from "@/lib/auth/auth-actions";
 import { useRouter } from "next/navigation";
 
 const OTP_LENGTH = 6;
-
-const schema = z.object({
-  code: z.string().length(OTP_LENGTH, "Enter all 6 digits"),
-});
-type FormValues = z.infer<typeof schema>;
 
 interface OtpFormProps {
   email:   string;

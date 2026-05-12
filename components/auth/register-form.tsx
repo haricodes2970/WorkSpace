@@ -118,7 +118,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
       <SocialAuth mode="register" />
 
       <p className="text-center text-[11px] text-white/25 leading-relaxed">
-        By continuing, you agree to WorkSpace's terms and privacy policy.
+        By continuing, you agree to WorkSpace&apos;s terms and privacy policy.
       </p>
     </motion.div>
   );
