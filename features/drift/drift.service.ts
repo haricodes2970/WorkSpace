@@ -1,5 +1,5 @@
 import "server-only";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma/client";
 import { computeDrift, type DriftResult } from "./drift.calculator";
 
 export type { DriftResult, DriftLevel, OverFocusItem, NeglectedItem, AbandonedItem, AllocationItem } from "./drift.calculator";

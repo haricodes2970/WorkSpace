@@ -1,5 +1,5 @@
 import "server-only";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma/client";
 import { computeEnvironmentHealth, type EnvironmentHealth } from "./environment.calculator";
 
 export type { EnvironmentHealth, HealthGrade, HealthDimension, CleanupItem, ArchiveSuggestion } from "./environment.calculator";

@@ -1,5 +1,5 @@
 import "server-only";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma/client";
 import { isStale, computeAge } from "@/features/temporal/aging";
 
 export interface AmbientSurface {

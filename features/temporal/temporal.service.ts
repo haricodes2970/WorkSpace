@@ -1,5 +1,5 @@
 import "server-only";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma/client";
 import type { UsageAggregate } from "@/platform/telemetry/telemetry-types";
 import {
   buildExecutionSeason,

@@ -1,5 +1,5 @@
 import "server-only";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma/client";
 import type { WorkingSetEntry } from "@/lib/session-store";
 
 export interface ContinuitySession {

@@ -1,5 +1,5 @@
 import "server-only";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma/client";
 import { computeAge, agingScore } from "@/features/temporal/aging";
 
 export interface BuilderProfile {
