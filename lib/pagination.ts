@@ -54,7 +54,8 @@ export function parsePaginationParams(
 ): { take: number; skip: number; cursor?: CursorPayload } {
   const pageSize = Math.min(params.first ?? params.last ?? defaults.pageSize, defaults.maxPageSize);
   const cursorStr = params.after ?? params.before;
-  const cursor = cursorStr ? decodeCursor(cursorStr) : undefined;
+  const cursorOrNull = cursorStr ? decodeCursor(cursorStr) : undefined;
+  const cursor = cursorOrNull ?? undefined;
 
   return { take: pageSize, skip: cursor ? 1 : 0, cursor };
 }

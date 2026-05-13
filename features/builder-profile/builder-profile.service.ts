@@ -21,7 +21,7 @@ export interface BuilderProfile {
 
   // Momentum snapshot
   momentumScore: number;   // 0-100
-  stagingProjects: { id: string; title: string; phase: string | null }[];
+  stagingProjects: { id: string; title: string; executionState: string }[];
 }
 
 export type BuilderTrait =
@@ -43,16 +43,16 @@ export async function getBuilderProfile(userId: string): Promise<BuilderProfile>
     prisma.idea.count({ where: { userId } }),
     prisma.project.findMany({
       where:  { userId },
-      select: { id: true, title: true, phase: true, archived: true, momentum: true, updatedAt: true },
+      select: { id: true, title: true, executionState: true, status: true, deletedAt: true, momentumScore: true, updatedAt: true },
     }),
-    prisma.memory.count({ where: { userId } }),
+    prisma.knowledgeMemory.count({ where: { userId } }),
     prisma.strategicReview.count({ where: { userId } }),
     prisma.idea.count({ where: { userId, createdAt: { gte: ninety } } }),
   ]);
 
-  const shipped  = projects.filter((p) => p.phase === "SHIPPED").length;
-  const active   = projects.filter((p) => !p.archived && p.phase !== "SHIPPED").length;
-  const stale    = projects.filter((p) => !p.archived && computeAge(p.updatedAt).daysSince >= 21).length;
+  const shipped  = projects.filter((p) => p.status === "SHIPPED").length;
+  const active   = projects.filter((p) => !p.deletedAt && p.status !== "SHIPPED").length;
+  const stale    = projects.filter((p) => !p.deletedAt && computeAge(p.updatedAt).daysSince >= 21).length;
   const total    = projects.length;
 
   const ideaVelocity    = Math.round((recentIdeas / 3));      // per 30d average
@@ -75,9 +75,9 @@ export async function getBuilderProfile(userId: string): Promise<BuilderProfile>
   if (reviews >= 3)                             traits.push("reflective");
 
   const stagingProjects = projects
-    .filter((p) => !p.archived && p.phase !== "SHIPPED")
+    .filter((p) => !p.deletedAt && p.status !== "SHIPPED")
     .slice(0, 5)
-    .map((p) => ({ id: p.id, title: p.title, phase: p.phase }));
+    .map((p) => ({ id: p.id, title: p.title, executionState: p.executionState }));
 
   return {
     totalIdeas: ideas, shippedProjects: shipped, activeProjects: active,

@@ -80,10 +80,10 @@ export function detectSeasonRuns(
   let run = 1;
 
   for (let i = 0; i < seasons.length; i++) {
-    if (i + 1 < seasons.length && seasons[i + 1].kind === seasons[i].kind) {
+    if (i + 1 < seasons.length && seasons[i + 1]?.kind === seasons[i]?.kind) {
       run++;
     } else {
-      result.push({ ...seasons[i], runLength: run });
+      result.push({ ...seasons[i]!, runLength: run });
       run = 1;
     }
   }

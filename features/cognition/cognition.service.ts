@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma/client";
+import { ExecutionState } from "@prisma/client";
 import { computeAge } from "@/features/temporal/aging";
 import {
   computeCognitionScore,
@@ -12,10 +13,10 @@ export type { CognitionResult, PressureLevel, Suggestion, PressureFactor } from 
 export async function getCognitionLoad(userId: string): Promise<CognitionResult> {
   const [projects, ideas, blockers, decisions, workingSetRow] = await Promise.all([
     prisma.project.findMany({
-      where:   { userId, archived: false },
-      select:  { id: true, phase: true, updatedAt: true },
+      where:   { userId, deletedAt: null },
+      select:  { id: true, executionState: true, updatedAt: true },
     }),
-    prisma.idea.count({ where: { userId, archived: false } }),
+    prisma.idea.count({ where: { userId, deletedAt: null } }),
     prisma.blocker.count({ where: { userId, resolved: false } }),
     prisma.decision.count({
       where: {
@@ -26,9 +27,9 @@ export async function getCognitionLoad(userId: string): Promise<CognitionResult>
     prisma.userSession.findUnique({ where: { userId }, select: { workingSet: true } }),
   ]);
 
-  const activeProjects    = projects.filter((p) => p.phase !== "SHIPPED").length;
+  const activeProjects    = projects.filter((p) => p.executionState !== ExecutionState.SHIPPING).length;
   const staleProjectCount = projects.filter(
-    (p) => p.phase !== "SHIPPED" && computeAge(p.updatedAt).daysSince >= 21
+    (p) => p.executionState !== ExecutionState.SHIPPING && computeAge(p.updatedAt).daysSince >= 21
   ).length;
   const workingSetSize = Array.isArray(workingSetRow?.workingSet)
     ? (workingSetRow!.workingSet as unknown[]).length

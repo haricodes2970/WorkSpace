@@ -3,9 +3,6 @@ import { prisma } from "@/lib/prisma/client";
 import {
   computeAdaptationWeights,
 } from "@/platform/adaptation/surface-ranker";
-import {
-  aggregateEvents,
-} from "@/platform/telemetry/usage-tracker";
 import type {
   AdaptationWeights,
   UsageAggregate,
@@ -18,7 +15,7 @@ export async function getLatestSnapshot(userId: string): Promise<UsageAggregate 
     where:   { userId },
     orderBy: { createdAt: "desc" },
   });
-  return row ? (row.data as UsageAggregate) : null;
+  return row ? (row.data as unknown as UsageAggregate) : null;
 }
 
 export async function upsertSnapshot(userId: string, data: UsageAggregate): Promise<void> {
@@ -38,7 +35,7 @@ export async function getSnapshotHistory(
     orderBy: { createdAt: "desc" },
     take:    limitWeeks,
   });
-  return rows.map((r) => r.data as UsageAggregate);
+  return rows.map((r) => r.data as unknown as UsageAggregate);
 }
 
 // ─── Adaptation weights I/O ───────────────────────────────────────────────────

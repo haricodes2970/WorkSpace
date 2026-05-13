@@ -27,23 +27,23 @@ export interface NudgeItem {
 
 export async function getAmbientSurface(userId: string): Promise<AmbientSurface> {
   const [memories, ideas, projects] = await Promise.all([
-    prisma.memory.findMany({
+    prisma.knowledgeMemory.findMany({
       where:   { userId },
       orderBy: { updatedAt: "desc" },
       take:    50,
-      select:  { id: true, title: true, content: true, type: true, updatedAt: true },
+      select:  { id: true, title: true, body: true, type: true, updatedAt: true },
     }),
     prisma.idea.findMany({
-      where:   { userId, archived: false },
+      where:   { userId, deletedAt: null },
       orderBy: { updatedAt: "asc" },   // oldest first for surfacing
       take:    30,
-      select:  { id: true, title: true, description: true, updatedAt: true, score: true },
+      select:  { id: true, title: true, description: true, updatedAt: true, readinessScore: true },
     }),
     prisma.project.findMany({
-      where:   { userId, archived: false },
+      where:   { userId, deletedAt: null },
       orderBy: { updatedAt: "asc" },
       take:    20,
-      select:  { id: true, title: true, phase: true, updatedAt: true, momentum: true },
+      select:  { id: true, title: true, executionState: true, updatedAt: true, momentumScore: true },
     }),
   ]);
 
@@ -58,7 +58,7 @@ export async function getAmbientSurface(userId: string): Promise<AmbientSurface>
       id:        m.id,
       kind:      "memory" as const,
       title:     m.title,
-      body:      m.content.slice(0, 120),
+      body:      m.body.slice(0, 120),
       updatedAt: m.updatedAt,
       href:      `/knowledge/${m.id}`,
       reason:    "Resurface — you haven't revisited this in a while",
@@ -82,7 +82,7 @@ export async function getAmbientSurface(userId: string): Promise<AmbientSurface>
   const nudges: NudgeItem[] = [];
 
   for (const p of projects) {
-    if (isStale(p.updatedAt, 21) && p.phase !== "SHIPPED" && p.phase !== "ARCHIVED") {
+    if (isStale(p.updatedAt, 21) && p.executionState !== "SHIPPING" && p.executionState !== "MAINTAINING") {
       nudges.push({
         id:      p.id,
         kind:    "project",
@@ -96,7 +96,7 @@ export async function getAmbientSurface(userId: string): Promise<AmbientSurface>
 
   if (nudges.length < 3) {
     for (const i of ideas) {
-      if ((i.score ?? 0) >= 7 && isStale(i.updatedAt, 30)) {
+      if ((i.readinessScore ?? 0) >= 7 && isStale(i.updatedAt, 30)) {
         nudges.push({
           id:      i.id,
           kind:    "idea",

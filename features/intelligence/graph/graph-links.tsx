@@ -19,14 +19,19 @@ interface GraphLinksProps {
 // ─── Config ───────────────────────────────────────────────────────────────
 
 const ENTITY_CONFIG: Record<EntityType, { label: string; color: string }> = {
-  IDEA:             { label: "Idea",        color: "text-[--color-warning]" },
-  PROJECT:          { label: "Project",     color: "text-[--color-accent]" },
-  DECISION:         { label: "Decision",    color: "text-[--color-text-secondary]" },
-  WEEKLY_REVIEW:    { label: "Review",      color: "text-[--color-text-muted]" },
-  NOTE:             { label: "Note",        color: "text-[--color-text-muted]" },
-  KNOWLEDGE_MEMORY: { label: "Memory",      color: "text-[--color-primary]" },
-  MILESTONE:        { label: "Milestone",   color: "text-[--color-success]" },
-  BLOCKER:          { label: "Blocker",     color: "text-[--color-danger]" },
+  IDEA:             { label: "Idea",             color: "text-[--color-warning]" },
+  PROJECT:          { label: "Project",          color: "text-[--color-accent]" },
+  DECISION:         { label: "Decision",         color: "text-[--color-text-secondary]" },
+  WEEKLY_REVIEW:    { label: "Review",           color: "text-[--color-text-muted]" },
+  NOTE:             { label: "Note",             color: "text-[--color-text-muted]" },
+  KNOWLEDGE_MEMORY: { label: "Memory",           color: "text-[--color-primary]" },
+  MILESTONE:        { label: "Milestone",        color: "text-[--color-success]" },
+  BLOCKER:          { label: "Blocker",          color: "text-[--color-danger]" },
+  TASK:             { label: "Task",             color: "text-[--color-text-muted]" },
+  SCOPE_ITEM:       { label: "Scope Item",       color: "text-[--color-text-muted]" },
+  RISK:             { label: "Risk",             color: "text-[--color-warning]" },
+  RETROSPECTIVE:    { label: "Retrospective",    color: "text-[--color-text-muted]" },
+  STRATEGIC_REVIEW: { label: "Strategic Review", color: "text-[--color-text-muted]" },
 };
 
 const REL_LABELS: Record<GraphRelationshipType, string> = {

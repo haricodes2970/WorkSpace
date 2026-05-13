@@ -18,7 +18,7 @@ export function clusterWorkingSet(entries: WorkingSetEntry[]): WorkingSetCluster
   const byKind: Record<string, WorkingSetEntry[]> = {};
   for (const e of entries) {
     if (!byKind[e.entityKind]) byKind[e.entityKind] = [];
-    byKind[e.entityKind].push(e);
+    byKind[e.entityKind]!.push(e);
   }
 
   const clusters: WorkingSetCluster[] = [];

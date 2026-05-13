@@ -28,7 +28,7 @@ export function AmbientStrip() {
       {surface.resurface.map((item) => (
         <Link
           key={item.id}
-          href={item.href}
+          href={item.href as never}
           className="group block rounded-lg border border-[--color-border] bg-[--color-card] p-3 transition-colors hover:border-[--color-primary]/30 hover:bg-[--color-primary-subtle]"
         >
           <div className="flex items-start gap-2">
@@ -58,7 +58,7 @@ export function AmbientStrip() {
       {surface.nudges.map((nudge) => (
         <Link
           key={nudge.id}
-          href={nudge.href}
+          href={nudge.href as never}
           className="group flex items-center gap-2.5 rounded-lg border border-[--color-warning]/20 bg-[--color-warning]/5 px-3 py-2 transition-colors hover:border-[--color-warning]/40"
         >
           <AlertCircle className="h-3.5 w-3.5 shrink-0 text-[--color-warning]" />

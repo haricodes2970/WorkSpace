@@ -2,10 +2,8 @@
 
 import Link from "next/link";
 import { FolderKanban, Lightbulb, Brain, LayoutDashboard, Layers } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useWorkingSet } from "@/features/working-set/working-set-context";
 import { clusterWorkingSet, type WorkingSetCluster } from "@/features/working-set/cluster";
-import type { WorkingSetEntry } from "@/lib/session-store";
 
 const KIND_ICON: Record<string, React.ReactNode> = {
   project:   <FolderKanban  className="h-3 w-3" />,
@@ -31,7 +29,7 @@ function ClusterSection({ cluster }: { cluster: WorkingSetCluster }) {
             {KIND_ICON[e.entityKind] ?? <LayoutDashboard className="h-3 w-3" />}
           </span>
           <Link
-            href={e.href}
+            href={e.href as never}
             className="flex-1 min-w-0 text-[12px] text-[--color-text-secondary] truncate hover:text-[--color-text-primary]"
           >
             {e.label}

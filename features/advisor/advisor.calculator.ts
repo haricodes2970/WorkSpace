@@ -16,6 +16,7 @@ export interface AdvisorProjectInput extends ProjectSnapshot {
   openRiskCount:         number;
   criticalRiskCount:     number;
   ageDays:               number;     // days since project creation
+  inactiveDays:          number;     // days since last execution activity
 }
 
 export interface AdvisorInput {

@@ -31,7 +31,7 @@ export async function getAttentionProfile(userId: string): Promise<AttentionProf
   });
 
   const weeklyData: WeeklyAttentionData[] = snapshots.map((s) => {
-    const d = s.data as UsageAggregate;
+    const d = s.data as unknown as UsageAggregate;
     return {
       period:          s.period,
       deepWorkMinutes: d.deepWorkMinutes ?? 0,
@@ -67,8 +67,8 @@ export async function getAttentionProfile(userId: string): Promise<AttentionProf
   // Trend: compare last 2 weeks to prior 2 weeks
   let trend: AttentionProfile["trend"] = "stable";
   if (weeklyData.length >= 4) {
-    const recent = (weeklyData[0].deepWorkMinutes + weeklyData[1].deepWorkMinutes) / 2;
-    const prior  = (weeklyData[2].deepWorkMinutes + weeklyData[3].deepWorkMinutes) / 2;
+    const recent = ((weeklyData[0]?.deepWorkMinutes ?? 0) + (weeklyData[1]?.deepWorkMinutes ?? 0)) / 2;
+    const prior  = ((weeklyData[2]?.deepWorkMinutes ?? 0) + (weeklyData[3]?.deepWorkMinutes ?? 0)) / 2;
     if (recent > prior * 1.2) trend = "improving";
     else if (recent < prior * 0.8) trend = "declining";
   }

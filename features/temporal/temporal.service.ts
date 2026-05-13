@@ -35,14 +35,14 @@ export async function getTemporalIntelligence(userId: string): Promise<TemporalI
       orderBy: { createdAt: "desc" },
       take:    12,
     }),
-    prisma.project.count({ where: { userId, phase: "SHIPPED", updatedAt: { gte: yearStart } } }),
+    prisma.project.count({ where: { userId, status: "SHIPPED", updatedAt: { gte: yearStart } } }),
     prisma.idea.count({ where: { userId, createdAt: { gte: yearStart } } }),
     prisma.strategicReview.count({ where: { userId, createdAt: { gte: yearStart } } }),
-    prisma.memory.count({ where: { userId, createdAt: { gte: yearStart } } }),
+    prisma.knowledgeMemory.count({ where: { userId, createdAt: { gte: yearStart } } }),
   ]);
 
   const seasons: ExecutionSeason[] = snapshots.map((s) => {
-    const d = s.data as UsageAggregate;
+    const d = s.data as unknown as UsageAggregate;
     return buildExecutionSeason({
       period:          s.period,
       shippedProjects: 0,   // snapshot doesn't track this directly; would need DB join
@@ -63,7 +63,7 @@ export async function getTemporalIntelligence(userId: string): Promise<TemporalI
       year,
       shippedProjects:  yearProjects,
       capturedIdeas:    yearIdeas,
-      deepWorkMinutes:  snapshots.reduce((s, r) => s + ((r.data as UsageAggregate).deepWorkMinutes ?? 0), 0),
+      deepWorkMinutes:  snapshots.reduce((s: number, r: { data: unknown }) => s + ((r.data as unknown as UsageAggregate).deepWorkMinutes ?? 0), 0),
       strategicReviews: yearReviews,
       memoriesCreated:  yearMemories,
     },

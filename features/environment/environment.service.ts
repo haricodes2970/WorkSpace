@@ -16,12 +16,12 @@ export async function getEnvironmentHealth(userId: string): Promise<EnvironmentH
       where: { userId },
       _count: { _all: true },
     }).then(async (total) => {
-      const archived = await prisma.project.count({ where: { userId, archived: true } });
-      const active   = await prisma.project.count({ where: { userId, archived: false, NOT: { phase: "SHIPPED" } } });
+      const archived = await prisma.project.count({ where: { userId, status: "ARCHIVED" } });
+      const active   = await prisma.project.count({ where: { userId, deletedAt: null, NOT: { status: "ARCHIVED" } } });
       return { total: total._count._all, archived, active };
     }),
     prisma.idea.aggregate({ where: { userId }, _count: { _all: true } }).then(async (total) => {
-      const open = await prisma.idea.count({ where: { userId, archived: false } });
+      const open = await prisma.idea.count({ where: { userId, deletedAt: null } });
       return { total: total._count._all, open };
     }),
     prisma.blocker.count({ where: { userId, resolved: false } }),

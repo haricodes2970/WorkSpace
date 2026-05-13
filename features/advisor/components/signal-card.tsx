@@ -76,7 +76,7 @@ export function SignalCard({ signal, onDismiss }: SignalCardProps) {
 
         {signal.actionLabel && signal.actionHref && (
           <Link
-            href={signal.actionHref}
+            href={signal.actionHref as never}
             className="ml-auto flex items-center gap-1 text-xs text-white/60 hover:text-white transition-colors"
           >
             {signal.actionLabel}

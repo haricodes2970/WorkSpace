@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FolderKanban } from "lucide-react";
 import { getStrategicDriftAction } from "@/features/drift/actions/drift-actions";
 import type { DriftResult } from "@/features/drift/drift.service";
 
@@ -24,7 +23,7 @@ export function AlignmentMap({ className }: { className?: string }) {
         {result.allocationMap.slice(0, 6).map((item) => (
           <div key={item.projectId} className="flex items-center gap-2">
             <Link
-              href={`/projects/${item.projectId}`}
+              href={`/projects/${item.projectId}` as never}
               className="flex-1 min-w-0 text-[12px] text-[--color-text-secondary] hover:text-[--color-text-primary] truncate"
             >
               {item.title}

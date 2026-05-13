@@ -165,11 +165,13 @@ export async function getProjectNarrative(
   const p = await prisma.project.findFirst({
     where:   { id: projectId, userId, deletedAt: null },
     include: {
-      tasks:          { where: { deletedAt: null }, select: { status: true } },
-      milestones:     { where: { deletedAt: null }, select: { status: true } },
-      weeklyReviews:  { select: { overallRating: true }, orderBy: { weekStarting: "asc" } },
-      decisions:      { where: { deletedAt: null }, select: { id: true } },
-      blockers:       { select: { id: true } },
+      tasks:          { where: { deletedAt: null }, select: { status: true, updatedAt: true, completedAt: true } },
+      milestones:     { where: { deletedAt: null }, select: { status: true, completedAt: true } },
+      weeklyReviews:  { select: { overallRating: true, stalled: true, weekStarting: true }, orderBy: { weekStarting: "asc" } },
+      decisions:      { where: { deletedAt: null }, select: { id: true, reversed: true } },
+      scopeItems:     { where: { deletedAt: null }, select: { id: true, title: true, notes: true, bucket: true } },
+      risks:          { where: { deletedAt: null }, select: { severity: true, mitigated: true } },
+      blockers:       { select: { id: true, resolved: true } },
       timelineEvents: { orderBy: { occurredAt: "asc" }, select: { type: true, title: true, occurredAt: true } },
     },
   });

@@ -16,7 +16,7 @@ export async function getContinuitySession(userId: string): Promise<ContinuitySe
     lastActiveProjectId:   row.lastActiveProjectId ?? undefined,
     lastVisitedEntityKind: row.lastVisitedEntityKind ?? undefined,
     lastVisitedEntityId:   row.lastVisitedEntityId ?? undefined,
-    workingSet:            (row.workingSet as WorkingSetEntry[]) ?? [],
+    workingSet:            (row.workingSet as unknown as WorkingSetEntry[]) ?? [],
   };
 }
 
@@ -48,7 +48,7 @@ export async function getLastActiveProject(userId: string) {
   const session = await getContinuitySession(userId);
   if (!session.lastActiveProjectId) return null;
   return prisma.project.findFirst({
-    where:  { id: session.lastActiveProjectId, userId, archived: false },
-    select: { id: true, title: true, phase: true, momentum: true },
+    where:  { id: session.lastActiveProjectId, userId, deletedAt: null },
+    select: { id: true, title: true, executionState: true, momentumScore: true },
   });
 }

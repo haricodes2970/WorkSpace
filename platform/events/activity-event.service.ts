@@ -25,7 +25,7 @@ export async function appendActivityEvent(
       entityType: ENTITY_KIND_TO_TYPE[input.entityKind] as EntityType,
       entityId:   input.entityId,
       kind:       input.kind as ActivityKind,
-      payload:    input.payload ?? undefined,
+      payload:    (input.payload ?? undefined) as object | undefined,
       occurredAt: input.occurredAt ?? new Date(),
     },
   });
@@ -48,7 +48,7 @@ export async function queryActivityEvents(
 ): Promise<{ events: ActivityEventRecord[]; nextCursor: string | null }> {
   const limit = Math.min(opts.limit ?? 50, 200);
 
-  const where: Parameters<typeof prisma.activityEvent.findMany>[0]["where"] = {
+  const where: NonNullable<Parameters<typeof prisma.activityEvent.findMany>[0]>["where"] = {
     userId,
     ...(opts.entityKind && { entityType: ENTITY_KIND_TO_TYPE[opts.entityKind] as EntityType }),
     ...(opts.entityId   && { entityId: opts.entityId }),

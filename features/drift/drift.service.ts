@@ -9,13 +9,13 @@ export async function getStrategicDrift(userId: string): Promise<DriftResult> {
 
   const [projects, highScoreIdeas, activityEvents, latestReview] = await Promise.all([
     prisma.project.findMany({
-      where:  { userId, archived: false },
-      select: { id: true, title: true, phase: true, momentum: true, updatedAt: true, ideaId: true },
+      where:  { userId, deletedAt: null },
+      select: { id: true, title: true, executionState: true, momentumScore: true, updatedAt: true },
     }),
     prisma.idea.findMany({
-      where:  { userId, archived: false, score: { gte: 7 } },
-      select: { id: true, title: true, score: true, updatedAt: true },
-      orderBy: { score: "desc" },
+      where:  { userId, deletedAt: null, readinessScore: { gte: 7 } },
+      select: { id: true, title: true, readinessScore: true, updatedAt: true },
+      orderBy: { readinessScore: "desc" },
       take:   20,
     }),
     prisma.activityEvent.findMany({
@@ -25,7 +25,7 @@ export async function getStrategicDrift(userId: string): Promise<DriftResult> {
     prisma.strategicReview.findFirst({
       where:   { userId },
       orderBy: { createdAt: "desc" },
-      select:  { period: true, wins: true, risks: true, patterns: true },
+      select:  { period: true, wins: true, struggles: true, patterns: true },
     }),
   ]);
 
@@ -36,19 +36,27 @@ export async function getStrategicDrift(userId: string): Promise<DriftResult> {
   }
 
   return computeDrift({
-    projects,
-    highScoreIdeas: highScoreIdeas.map((i) => ({
-      ...i,
-      score:     i.score ?? 0,
+    projects: projects.map((p) => ({
+      id:        p.id,
+      title:     p.title,
+      phase:     p.executionState,
+      momentum:  String(p.momentumScore),
+      updatedAt: p.updatedAt,
+      ideaId:    null,
+    })),
+    highScoreIdeas: highScoreIdeas.map((i: { id: string; title: string; readinessScore: number; updatedAt: Date }) => ({
+      id:        i.id,
+      title:     i.title,
+      score:     i.readinessScore ?? 0,
       updatedAt: i.updatedAt,
     })),
     activityMap,
     latestReview: latestReview
       ? {
           period:   latestReview.period,
-          wins:     latestReview.wins as string[],
-          risks:    latestReview.risks as string[],
-          patterns: latestReview.patterns as string[],
+          wins:     [latestReview.wins],
+          risks:    [latestReview.struggles],
+          patterns: [latestReview.patterns],
         }
       : null,
   });

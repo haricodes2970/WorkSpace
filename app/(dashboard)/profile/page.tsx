@@ -47,9 +47,9 @@ async function ProfileContent() {
                 className="flex items-center gap-3 rounded-lg border border-[--color-border] bg-[--color-card] px-3 py-2 text-[12px] text-[--color-text-secondary] hover:text-[--color-text-primary] hover:border-[--color-primary]/30 transition-colors"
               >
                 <span className="flex-1 truncate">{p.title}</span>
-                {p.phase && (
+                {p.executionState && (
                   <span className="text-[10px] font-mono text-[--color-text-muted]">
-                    {p.phase.replace("_", " ")}
+                    {p.executionState.replace("_", " ")}
                   </span>
                 )}
               </a>

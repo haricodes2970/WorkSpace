@@ -50,12 +50,12 @@ export function ContinuityProvider({ children }: { children: ReactNode }) {
   // Auto-track entity visits from URL
   useEffect(() => {
     const projectMatch = pathname.match(/^\/projects\/([^/]+)/);
-    if (projectMatch && projectMatch[1] !== "new") {
+    if (projectMatch && projectMatch[1] && projectMatch[1] !== "new") {
       setLastVisited("project", projectMatch[1]);
       scheduleSync();
     }
     const ideaMatch = pathname.match(/^\/ideas\/([^/]+)/);
-    if (ideaMatch && ideaMatch[1] !== "new") {
+    if (ideaMatch && ideaMatch[1] && ideaMatch[1] !== "new") {
       setLastVisited("idea", ideaMatch[1]);
       scheduleSync();
     }

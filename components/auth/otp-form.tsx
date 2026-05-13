@@ -84,7 +84,7 @@ export function OtpForm({ email, onBack }: OtpFormProps) {
         setDigits(Array(OTP_LENGTH).fill(""));
         focusAt(0);
       } else {
-        router.push(result.data.redirectTo);
+        router.push(result.data.redirectTo as never);
       }
     } catch {
       setError("Verification failed. Please try again.");

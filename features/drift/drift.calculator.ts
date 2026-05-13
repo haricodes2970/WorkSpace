@@ -153,7 +153,7 @@ function buildSummary(
   if (level === "aligned") return "Execution is well-distributed across priorities.";
 
   const parts: string[] = [];
-  if (overFocus.length)   parts.push(`Attention concentrated on "${overFocus[0].title}"`);
+  if (overFocus.length)   parts.push(`Attention concentrated on "${overFocus[0]?.title ?? ""}"`);
   if (neglected.length)   parts.push(`${neglected.length} project${neglected.length > 1 ? "s" : ""} going stale`);
   if (abandoned.length)   parts.push(`${abandoned.length} high-value idea${abandoned.length > 1 ? "s" : ""} awaiting action`);
   return parts.join(" · ");

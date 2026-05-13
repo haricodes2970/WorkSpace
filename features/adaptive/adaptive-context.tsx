@@ -71,11 +71,6 @@ export function AdaptiveProvider({ children }: { children: ReactNode }) {
     warmEntitiesOnIdle();
   }, [pathname, router]);
 
-  const scheduleSyncDebounced = useCallback(() => {
-    if (syncTimer.current) clearTimeout(syncTimer.current);
-    syncTimer.current = setTimeout(() => doSync(), SYNC_INTERVAL);
-  }, []);
-
   const doSync = useCallback(async () => {
     try {
       const events = [...loadPersistedEvents(), ...flushBuffer()];
@@ -89,6 +84,11 @@ export function AdaptiveProvider({ children }: { children: ReactNode }) {
       setAdapted(true);
     } catch { /* sync is best-effort */ }
   }, []);
+
+  const scheduleSyncDebounced = useCallback(() => {
+    if (syncTimer.current) clearTimeout(syncTimer.current);
+    syncTimer.current = setTimeout(() => doSync(), SYNC_INTERVAL);
+  }, [doSync]);
 
   const trackNav    = useCallback((route: string)          => { track("nav",         route); scheduleSyncDebounced(); }, [scheduleSyncDebounced]);
   const trackCmd    = useCallback((cmdId: string)           => { track("cmd",         cmdId); scheduleSyncDebounced(); }, [scheduleSyncDebounced]);

@@ -91,7 +91,7 @@ export function HealthPanel({ onClose }: { onClose?: () => void }) {
               {health.cleanupItems.map((item, i) => (
                 <Link
                   key={i}
-                  href={item.href}
+                  href={item.href as never}
                   className="flex items-center gap-2 rounded-lg border border-[--color-border] bg-[--color-card] px-3 py-2 text-[12px] text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors"
                 >
                   <span className="flex-1">{item.message}</span>
@@ -109,7 +109,7 @@ export function HealthPanel({ onClose }: { onClose?: () => void }) {
               {health.archiveSuggestions.map((s, i) => (
                 <Link
                   key={i}
-                  href={s.href}
+                  href={s.href as never}
                   className="flex items-center gap-2 rounded-lg border border-[--color-border] bg-[--color-card] px-3 py-2 text-[12px] text-[--color-text-secondary] hover:text-[--color-text-primary] transition-colors"
                 >
                   <Archive className="h-3.5 w-3.5 shrink-0 text-[--color-text-muted]" />

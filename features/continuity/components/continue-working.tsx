@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, FolderKanban } from "lucide-react";
+import { ExecutionState } from "@prisma/client";
 import { getLastActiveProjectAction } from "@/features/continuity/actions/continuity-actions";
 
 interface Project {
-  id:       string;
-  title:    string;
-  phase:    string | null;
-  momentum: string | null;
+  id:             string;
+  title:          string;
+  executionState: ExecutionState;
+  momentumScore:  number;
 }
 
 const MOMENTUM_LABEL: Record<string, string> = {
@@ -24,19 +25,19 @@ export function ContinueWorking() {
 
   useEffect(() => {
     getLastActiveProjectAction()
-      .then(setProject)
+      .then((p) => setProject(p ? { id: p.id, title: p.title, executionState: p.executionState, momentumScore: p.momentumScore } : null))
       .catch(() => setProject(null));
   }, []);
 
   if (project === undefined || project === null) return null;
 
-  const momentumLabel = project.momentum
-    ? (MOMENTUM_LABEL[project.momentum] ?? project.momentum.toLowerCase())
+  const momentumLabel = project.momentumScore > 0
+    ? (MOMENTUM_LABEL[project.executionState] ?? project.executionState.toLowerCase())
     : null;
 
   return (
     <Link
-      href={`/projects/${project.id}`}
+      href={`/projects/${project.id}` as never}
       className="group flex items-center gap-3 rounded-lg border border-[--color-border] bg-[--color-card] px-3 py-2.5 transition-colors hover:border-[--color-primary]/40 hover:bg-[--color-primary-subtle]"
     >
       <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-[--color-primary]/10">

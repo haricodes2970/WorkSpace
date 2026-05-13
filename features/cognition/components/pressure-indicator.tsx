@@ -65,7 +65,6 @@ export function PressureIndicator({ compact = false, className }: PressureIndica
             <div className="h-1.5 w-full rounded-full bg-[--color-card] overflow-hidden">
               <div
                 className={cn("h-full rounded-full transition-all", {
-                  "bg-[--color-success]": result.level === "calm",
                   "bg-[--color-text-muted]": result.level === "moderate",
                   "bg-[--color-warning]": result.level === "high",
                   "bg-[--color-error]":  result.level === "overloaded",

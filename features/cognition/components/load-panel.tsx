@@ -57,7 +57,7 @@ export function CognitionLoadPanel() {
         {result.suggestions.slice(0, 2).map((s, i) => (
           <Link
             key={i}
-            href={SUGGESTION_HREF[s.kind]}
+            href={SUGGESTION_HREF[s.kind] as never}
             className="group flex items-start gap-2.5 rounded-lg border border-[--color-border] bg-[--color-card] px-3 py-2 transition-colors hover:border-[--color-primary]/30 hover:bg-[--color-primary-subtle]"
           >
             <span className="mt-0.5 shrink-0 text-[--color-text-muted] group-hover:text-[--color-primary]">

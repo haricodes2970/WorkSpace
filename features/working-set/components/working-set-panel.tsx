@@ -1,48 +1,13 @@
 "use client";
 
-import Link from "next/link";
-import { Layers, X, Trash2, FolderKanban, Lightbulb, Brain, LayoutDashboard } from "lucide-react";
+import { Layers, X, Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useWorkingSet } from "@/features/working-set/working-set-context";
 import { ClusterPanel }  from "@/features/working-set/components/cluster-panel";
 import { motionPresets } from "@/lib/design-tokens";
-import type { WorkingSetEntry } from "@/lib/session-store";
-
-const KIND_ICON: Record<string, React.ReactNode> = {
-  project:   <FolderKanban className="h-3 w-3" />,
-  idea:      <Lightbulb    className="h-3 w-3" />,
-  knowledge: <Brain        className="h-3 w-3" />,
-  page:      <LayoutDashboard className="h-3 w-3" />,
-};
-
-function WorkingSetEntry({ entry, onUnpin }: {
-  entry:   WorkingSetEntry;
-  onUnpin: () => void;
-}) {
-  return (
-    <div className="group flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-[--color-card] transition-colors">
-      <span className="text-[--color-text-muted] shrink-0">
-        {KIND_ICON[entry.entityKind] ?? <LayoutDashboard className="h-3 w-3" />}
-      </span>
-      <Link
-        href={entry.href}
-        className="flex-1 min-w-0 text-[12px] text-[--color-text-secondary] truncate hover:text-[--color-text-primary]"
-      >
-        {entry.label}
-      </Link>
-      <button
-        onClick={onUnpin}
-        className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded text-[--color-text-muted] hover:text-[--color-text-primary]"
-        aria-label="Remove from working set"
-      >
-        <X className="h-3 w-3" />
-      </button>
-    </div>
-  );
-}
 
 export function WorkingSetPanel() {
-  const { entries, unpin, clear, isOpen, setOpen } = useWorkingSet();
+  const { entries, clear, isOpen, setOpen } = useWorkingSet();
 
   return (
     <>

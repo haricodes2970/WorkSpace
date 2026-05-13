@@ -120,14 +120,14 @@ export async function createStrategicReview(
       struggles:   input.struggles,
       patterns:    input.patterns,
       nextFocus:   input.nextFocus,
-      snapshot,
+      snapshot:    snapshot as object,
     },
     update: {
       wins:        input.wins,
       struggles:   input.struggles,
       patterns:    input.patterns,
       nextFocus:   input.nextFocus,
-      snapshot,
+      snapshot:    snapshot as object,
     },
   });
   return toRecord(row);

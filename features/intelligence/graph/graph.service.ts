@@ -40,6 +40,8 @@ async function resolveLabel(
       const r = await prisma.weeklyReview.findUnique({ where: { id: entityId }, select: { weekStarting: true } });
       return { label: r ? `Review ${r.weekStarting.toLocaleDateString()}` : "Review" };
     }
+    default:
+      return { label: entityType };
   }
 }
 
